@@ -6,5 +6,5 @@ from django.contrib.auth.models import AbstractUser
 class UserInfo(AbstractUser):
     fullname=models.CharField(max_length=100)
     mobile_number=models.CharField(max_length=10)
-    dp=models.FileField(null=True,blank=True)
+    dp=models.FileField(null=True,blank=True,default='default_images/default_dp.png')
     

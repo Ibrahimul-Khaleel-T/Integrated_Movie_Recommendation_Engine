@@ -5,11 +5,30 @@ from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.core.mail import send_mail
 import random
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
 def index(request):
     return render(request,'index_page.html')
+
+
+def home_page(request):
+    return render(request,'home_page.html')
+
+
+def dp(request):
+    user = request.user
+    if request.method == 'POST':
+        dp = request.FILES.get('dp')
+        if dp:
+            user.dp = dp
+        elif not user.dp:
+            user.dp = 'default_images/default_dp.png'
+        user.save()
+        return render(request,'home_page.html')
+    return render(request,'dp.html',{'user':user})
+
 
 def signup(request):
     if request.method=='POST':
@@ -24,7 +43,9 @@ def signup(request):
         
         data=UserInfo.objects.create_user(fullname=fullname,email=email,mobile_number=mobile_number,username=username,password=password)
         data.save()
-        return HttpResponse("success")
+        user=authenticate(username=username,password=password)
+        login(request,user)
+        return redirect(dp)
     else:
         return render(request,'signup_page.html')
 
@@ -117,14 +138,6 @@ def set_new_password(request):
     return render(request,'set_new_password.html',{'email':email})
 
 
-# def dp(request):
-#     user = UserInfo.objects.filter(user=request.user)
-#     if request.method == 'POST':
-#         if 'dp' in request.FILES:
-#             user.dp = request.FILES['dp']
-#         else:
-#             user.dp = 
 
 
-def home_page(request):
-    return render(request,'home_page.html')
+

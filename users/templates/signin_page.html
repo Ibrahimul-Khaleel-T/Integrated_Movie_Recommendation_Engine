@@ -195,7 +195,7 @@
       </div>
     </div> -->
   </div>
-  <form method="post" action="" onsubmit="return validateform()">
+  <form method="post" action="{% url 'signin' %}" onsubmit="return validateform()">
     {% csrf_token %}
     <h2>Sign in</h2>
     <input type="text" placeholder="Username" name="username" id="username" required>
