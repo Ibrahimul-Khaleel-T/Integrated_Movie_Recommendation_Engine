@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.core.mail import send_mail
 import random
-from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 
@@ -13,8 +13,8 @@ def index(request):
     return render(request,'index_page.html')
 
 
-def home_page(request):
-    return render(request,'home_page.html')
+def user_home_page(request):
+    return render(request,'user_home_page.html')
 
 
 def dp(request):
@@ -26,7 +26,7 @@ def dp(request):
         elif not user.dp:
             user.dp = 'default_images/default_dp.png'
         user.save()
-        return render(request,'home_page.html')
+        return redirect(user_home_page)
     return render(request,'dp.html',{'user':user})
 
 
@@ -56,8 +56,9 @@ def signin(request):
         password=request.POST['password']
         user=authenticate(username=username,password=password)
         if user is not None:
+            data=request.user
             login(request,user)
-            return HttpResponse("Succecssfully logined.")
+            return redirect(user_home_page,{'data':data})
         else:
             messages.error(request,"Invalid Username or Password, Try again!")
             return render(request,'signin_page.html')
@@ -136,6 +137,10 @@ def set_new_password(request):
             return render(request,'set_new_password.html',{'email':email})  
     email = request.GET.get('email', '')             
     return render(request,'set_new_password.html',{'email':email})
+
+
+def user_profile(request):
+    return render(request,'user_profile.html')
 
 
 

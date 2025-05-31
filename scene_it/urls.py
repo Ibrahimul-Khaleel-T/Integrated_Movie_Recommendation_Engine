@@ -29,7 +29,8 @@ urlpatterns = [
     path('verify_otp',views.verify_otp,name='verify_otp'),
     path('set_new_password',views.set_new_password,name='set_new_password'),
     path('dp',views.dp,name='dp'),
-    path('home_page',views.home_page,name='home_page'),
+    path('user_home_page',views.user_home_page,name='user_home_page'),
+    path('user_profile',views.user_profile,name='user_profile'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
