@@ -56,9 +56,8 @@ def signin(request):
         password=request.POST['password']
         user=authenticate(username=username,password=password)
         if user is not None:
-            data=request.user
             login(request,user)
-            return redirect(user_home_page,{'data':data})
+            return redirect(user_home_page)
         else:
             messages.error(request,"Invalid Username or Password, Try again!")
             return render(request,'signin_page.html')
@@ -139,9 +138,19 @@ def set_new_password(request):
     return render(request,'set_new_password.html',{'email':email})
 
 
-def user_profile(request):
-    return render(request,'user_profile.html')
+def signout(request):
+    logout(request)
+    return redirect(signin)
 
+
+def user_profile(request):
+    try:
+        data=request.user
+        return render(request,'user_profile.html',{'data':data})
+    except UserInfo.DoesNotExist:
+        return redirect(user_home_page)
+    except:
+        return redirect(user_home_page)
 
 
 
