@@ -1,0 +1,210 @@
+{% extends 'user_profile.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+  .dp-upload-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -30px;
+    /* margin-top: -7px; */
+  }
+
+  .dp-label {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    display: block;
+  }
+
+  .dp-label img#dp-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+
+  .camera-float img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .camera-float {
+    position: absolute;
+    bottom: 7px;
+    right: 7px;
+    background: white;
+    padding: 5px;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+  }
+
+  .container {
+    background-color: rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 380px;
+    padding: 60px;
+    margin-top: 40px;
+  }
+  .user-info{
+    margin-top: 3px;
+  }
+  .user-info label{
+    font-weight: bolder;
+    font-size: 14px;
+  }
+  .user-info input{
+    width: 260px;
+    padding: 5px;
+    margin: 1px 0 0 1px;
+    background-color: rgba(54, 53, 53, 0.3);
+    border:1px solid rgb(78, 76, 76);
+    border-radius: 3px;
+    color: white;
+  }
+  .user-info input::placeholder{
+    color: rgba(255, 255, 255, 0.7); 
+    opacity: 1;
+    font-size: 14px;
+  }
+  .user-info label{
+    color: rgb(187, 182, 182);
+    margin:11px 0 0 0;
+  }
+  button{
+    width: 260px;
+    border: none;
+    border-radius: 4px;
+    margin-top: 47px;
+    background-color: rgb(190, 39, 39);
+    font-size: 17px;
+    font-weight: bolder;
+    color: white;
+    padding: 4px;
+    cursor: pointer;
+  }
+  button:hover{
+    background-color: rgb(165, 22, 22);
+  }
+  .error{
+    color: red;
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    text-align: start;
+    margin-top: 1px;
+    margin-bottom: 5px;
+    max-width: 350px;
+    word-wrap: break-word;
+    }
+</style>
+
+<div class="container">
+  <form method="post" action="" enctype="multipart/form-data" onsubmit="return validateform()">
+    {% csrf_token %}
+    <div class="dp-upload-wrapper">
+      <div style="position: relative; width: 130px; height: 130px;">
+        <input type="file" name="dp" id="dp" hidden>
+        <label for="dp" class="dp-label">
+          <img id="dp-preview" src="{{request.user.dp.url}}" alt="Profile Picture">
+        </label>
+        <div class="camera-float">
+          <img src="{% static 'images/white_pencil_rounded (1).png' %}" alt="Upload">
+        </div>
+      </div>
+    </div>
+
+    <div class="user-info">
+      <label for="">Username</label><br>
+      <input type="text" placeholder="Enter the Username" name="username" id="username"
+        value="{{request.user.username}}"><br>
+      <span class="error" id="username_error"></span>
+
+      <label for="">Full Name</label><br>
+      <input type="text" placeholder="Enter the Full Name" name="fullname" id="fullname" value="{{request.user.fullname}}"><br>
+      <span class="error" id="fullname_error"></span>
+
+      <label for="">Email ID</label><br>
+      <input type="text" placeholder="Enter the Email ID" name="email" id="email" value="{{request.user.email}}"><br>
+      <span class="error" id="email_error"></span>
+
+      <label for="">Mobile Number</label><br>
+      <input type="tel" placeholder="Enter the Mobile Number" name="mobile_number" id="mobile_number" value="{{request.user.mobile_number}}"><br>
+      <span class="error" id="mobile_number_error"></span>
+    </div>
+    <button type="submit">Save</button>
+  </form>
+
+</div>
+
+
+
+<script>
+  function validateform(){
+    let isvalid=true;
+    document.querySelectorAll(".error").forEach(e=>e.innerText="");
+
+
+    let username=document.getElementById("username").value.trim();
+    let fullname=document.getElementById("fullname").value.trim();
+    let email=document.getElementById("email").value.trim();
+    let mobile_number=document.getElementById("mobile_number").value.trim();
+
+
+    if(username===""){
+      document.getElementById("username_error").innerText="Username is required.";
+      isvalid=false;
+    }
+    if(fullname===""){
+      document.getElementById("fullname_error").innerText="Full name is required.";
+      isvalid=false;
+    }
+    if(email===""){
+      document.getElementById("email_error").innerText="Email ID is required.";
+      isvalid=false;
+    }
+    let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                document.getElementById("email_error").innerText = "Enter a valid Email address";
+                isvalid = false;
+    }
+    if(mobile_number===""){
+      document.getElementById("mobile_number_error").innerText="Mobile number is required";
+      isvalid=false;
+    }
+    return isvalid
+  }
+</script>
+<script>
+  const input = document.getElementById('dp');
+  const preview = document.getElementById('dp-preview');
+
+  input.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+
+{% endblock %}

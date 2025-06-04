@@ -24,7 +24,7 @@ def dp(request):
         if dp:
             user.dp = dp
         elif not user.dp:
-            user.dp = 'default_images/default_dp.png'
+            user.dp = 'default_images/default_dp2.jpeg'
         user.save()
         return redirect(user_home_page)
     return render(request,'dp.html',{'user':user})
@@ -151,7 +151,10 @@ def user_profile(request):
         return redirect(user_home_page)
     except:
         return redirect(user_home_page)
+    
 
+def edit_user_profile(request):
+    return render(request,'edit_user_profile.html')
 
 
 
