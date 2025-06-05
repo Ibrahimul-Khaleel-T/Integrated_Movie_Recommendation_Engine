@@ -4,7 +4,7 @@ from .models import UserInfo
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.core.mail import send_mail
-import random
+import random,requests
 
 
 # Create your views here.
@@ -13,8 +13,33 @@ def index(request):
     return render(request,'index_page.html')
 
 
+API_KEY="830596140937bda925ac2c89f6deb604"
+
+def fetch_top_rated_movies(language_code):
+    url = f"https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&with_original_language={language_code}&sort_by=popularity.desc&page=1"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.json().get('results', [])
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch movies for {language_code}: {e}")
+        return []  # Return empty list if failed
+
+
 def user_home_page(request):
-    return render(request,'user_home_page.html')
+    languages = ['en', 'hi', 'ml', 'ta', 'te', 'kn', 'ja', 'es']
+    seen_titles = set()
+    unique_movies = []
+
+    for lang_code in languages:
+        movies = fetch_top_rated_movies(lang_code)
+        for movie in movies:
+            title = movie.get('title') or movie.get('original_title') or movie.get('name')
+            if title and title.lower() not in seen_titles:
+                seen_titles.add(title.lower())
+                unique_movies.append(movie)
+
+    return render(request, 'user_home_page.html', {'movies': unique_movies})
 
 
 def dp(request):
@@ -154,7 +179,20 @@ def user_profile(request):
     
 
 def edit_user_profile(request):
-    return render(request,'edit_user_profile.html')
+    data=request.user
+    if request.method=='POST':
+        if 'dp' in request.FILES:
+            data.dp=request.FILES['dp']
+        data.username=request.POST['username']
+        data.fullname=request.POST['fullname']
+        data.email=request.POST['email']
+        data.mobile_number=request.POST['mobile_number']
+        data.save()
+        messages.success(request,"The changes are successfully updated.")
+        return redirect(user_profile)
+    else:
+        return render(request,'edit_user_profile.html',{'data':data})
+
 
 
 

@@ -130,6 +130,33 @@ body {
 
 {% endblock %}
 
+{% if messages %}
+<div id="popup-message" class="alert alert-success text-center"
+  style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: auto; padding: 10px 20px; border-radius: 5px; display: none;background-color:lightblue;color: black; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); ">
+  {% for message in messages %}
+  {{ message }}
+  {% endfor %}
+</div>
+
+<script>
+
+  window.onload = function () {
+    var messageElement = document.getElementById("popup-message");
+    if (messageElement) {
+      messageElement.style.display = "block";
+
+      setTimeout(function () {
+        messageElement.style.transition = "opacity 1s";
+        messageElement.style.opacity = "0";
+        setTimeout(function () {
+          messageElement.style.display = "none";
+        }, 1000);
+      }, 3000);
+    }
+  }
+</script>
+{% endif %}
+
 <script>
   // Wait for the page to load
   document.addEventListener("DOMContentLoaded", function () {

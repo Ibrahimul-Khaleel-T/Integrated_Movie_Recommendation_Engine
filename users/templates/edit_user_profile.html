@@ -122,7 +122,7 @@
       <div style="position: relative; width: 130px; height: 130px;">
         <input type="file" name="dp" id="dp" hidden>
         <label for="dp" class="dp-label">
-          <img id="dp-preview" src="{{request.user.dp.url}}" alt="Profile Picture">
+          <img id="dp-preview" src="{{data.dp.url}}" alt="Profile Picture">
         </label>
         <div class="camera-float">
           <img src="{% static 'images/white_pencil_rounded (1).png' %}" alt="Upload">
@@ -132,20 +132,19 @@
 
     <div class="user-info">
       <label for="">Username</label><br>
-      <input type="text" placeholder="Enter the Username" name="username" id="username"
-        value="{{request.user.username}}"><br>
+      <input type="text" placeholder="Enter the Username" name="username" id="username"value="{{data.username}}"><br>
       <span class="error" id="username_error"></span>
 
       <label for="">Full Name</label><br>
-      <input type="text" placeholder="Enter the Full Name" name="fullname" id="fullname" value="{{request.user.fullname}}"><br>
+      <input type="text" placeholder="Enter the Full Name" name="fullname" id="fullname" value="{{data.fullname}}"><br>
       <span class="error" id="fullname_error"></span>
 
       <label for="">Email ID</label><br>
-      <input type="text" placeholder="Enter the Email ID" name="email" id="email" value="{{request.user.email}}"><br>
+      <input type="text" placeholder="Enter the Email ID" name="email" id="email" value="{{data.email}}"><br>
       <span class="error" id="email_error"></span>
 
       <label for="">Mobile Number</label><br>
-      <input type="tel" placeholder="Enter the Mobile Number" name="mobile_number" id="mobile_number" value="{{request.user.mobile_number}}"><br>
+      <input type="tel" placeholder="Enter the Mobile Number" name="mobile_number" id="mobile_number" value="{{data.mobile_number}}"><br>
       <span class="error" id="mobile_number_error"></span>
     </div>
     <button type="submit">Save</button>
