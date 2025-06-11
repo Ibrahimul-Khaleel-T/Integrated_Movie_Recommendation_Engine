@@ -4,16 +4,14 @@ from .models import UserInfo
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.core.mail import send_mail
-import random,requests
-
+import random,requests,json
+API_KEY="830596140937bda925ac2c89f6deb604"
 
 # Create your views here.
 
 def index(request):
     return render(request,'index_page.html')
 
-
-API_KEY="830596140937bda925ac2c89f6deb604"
 
 def fetch_top_rated_movies(language_code):
     url = f"https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&with_original_language={language_code}&sort_by=popularity.desc&page=1"
@@ -23,7 +21,20 @@ def fetch_top_rated_movies(language_code):
         return response.json().get('results', [])
     except requests.exceptions.RequestException as e:
         print(f"Failed to fetch movies for {language_code}: {e}")
-        return []  # Return empty list if failed
+        return []  
+
+
+def get_movie_credits(movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={API_KEY}"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        credits = response.json()
+        director = next((member['name'] for member in credits['crew'] if member['job'] == 'Director'), 'N/A')
+        return director
+    except:
+        return 'N/A'
+
 
 
 def user_home_page(request):
@@ -34,9 +45,10 @@ def user_home_page(request):
     for lang_code in languages:
         movies = fetch_top_rated_movies(lang_code)
         for movie in movies:
-            title = movie.get('title') or movie.get('original_title') or movie.get('name')
-            if title and title.lower() not in seen_titles:
-                seen_titles.add(title.lower())
+            if movie['title'] not in seen_titles:
+                seen_titles.add(movie['title'])
+                movie['director'] = get_movie_credits(movie['id'])
+                movie['json'] = json.dumps(movie)
                 unique_movies.append(movie)
 
     return render(request, 'user_home_page.html', {'movies': unique_movies})
