@@ -34,6 +34,18 @@ def get_movie_credits(movie_id):
         return director
     except:
         return 'N/A'
+    
+
+def fetch_genres():
+    url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={API_KEY}&language=en-US"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        genres = response.json().get('genres', [])
+        return {genre['id']: genre['name'] for genre in genres}
+    except:
+        return {}
+
 
 
 
@@ -42,13 +54,17 @@ def user_home_page(request):
     seen_titles = set()
     unique_movies = []
 
+    genre_map = fetch_genres()
+
     for lang_code in languages:
         movies = fetch_top_rated_movies(lang_code)
         for movie in movies:
             if movie['title'] not in seen_titles:
                 seen_titles.add(movie['title'])
                 movie['director'] = get_movie_credits(movie['id'])
-                movie['json'] = json.dumps(movie)
+                movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
+                movie['json'] = json.dumps({**movie,"director": movie['director'],"genres": movie['genres'], })
+
                 unique_movies.append(movie)
 
     return render(request, 'user_home_page.html', {'movies': unique_movies})
