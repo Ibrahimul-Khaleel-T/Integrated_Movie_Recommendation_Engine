@@ -63,11 +63,41 @@ def user_home_page(request):
                 seen_titles.add(movie['title'])
                 movie['director'] = get_movie_credits(movie['id'])
                 movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
-                movie['json'] = json.dumps({**movie,"director": movie['director'],"genres": movie['genres'], })
+                movie['trailer_key'] = get_movie_trailer_key(movie['id'])
+                movie['json'] = json.dumps({**movie,"director": movie['director'],"genres": movie['genres'],"trailer_key": movie['trailer_key'], })
 
                 unique_movies.append(movie)
 
     return render(request, 'user_home_page.html', {'movies': unique_movies})
+
+
+def get_movie_trailer_key(movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={API_KEY}"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        videos = response.json().get('results', [])
+
+        # Prioritize YouTube trailer
+        for video in videos:
+            if video['type'] == 'Trailer' and video['site'] == 'YouTube':
+                return video['key']
+        
+        # If no "Trailer", try a "Teaser" from YouTube
+        for video in videos:
+            if video['type'] == 'Teaser' and video['site'] == 'YouTube':
+                return video['key']
+
+        # Try first YouTube video as fallback
+        for video in videos:
+            if video['site'] == 'YouTube':
+                return video['key']
+
+        return None
+    except Exception as e:
+        print(f"Error fetching trailer for {movie_id}: {e}")
+        return None
+
 
 
 def dp(request):
