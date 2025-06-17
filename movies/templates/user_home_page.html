@@ -101,54 +101,109 @@
       position: relative;
       z-index: 2;
     }
+
     .modal-body {
       position: relative;
       padding: 0;
       height: 600px;
       overflow: hidden;
     }
+
     .modal-content {
       background-color: transparent;
       border: 1.5px solid rgb(78, 76, 76);
       border-radius: 8px;
       overflow: hidden;
     }
-    .mb-1{
+
+    .mb-1 {
       margin-top: -15px;
     }
-    .mb-0{
+
+    .mb-0 {
       margin-top: -3px;
     }
-    .trailer{
+
+    .trailer {
       width: 150px;
       padding: 10px;
       border-radius: 4px;
-      background-color:  rgb(190, 39, 39);
+      background-color: rgb(190, 39, 39);
       border: none;
       color: white;
       font-size: 18px;
       margin-top: 15px;
       margin-bottom: 15px;
     }
-    #movieDirector{
+
+    #movieDirector {
       background-color: rgba(204, 196, 196, 0.3);
       padding: 6px;
       border-radius: 3px;
-    }
-    #movieYear{
-      background-color: rgba(204, 196, 196, 0.3);
-      padding: 6px;
-      border-radius: 3px;
-    }
-    #movieGenres{
-      background-color: rgba(204, 196, 196, 0.3);
-      padding: 6px;
-      border-radius: 3px;
-    }
-    .modal-title{
-      margin-top: -6px;
     }
 
+    #movieYear {
+      background-color: rgba(204, 196, 196, 0.3);
+      padding: 6px;
+      border-radius: 3px;
+    }
+
+    #movieGenres {
+      background-color: rgba(204, 196, 196, 0.3);
+      padding: 6px;
+      border-radius: 3px;
+    }
+
+    .modal-title {
+      margin-top: -6px;
+    }
+    .star-rating {
+    direction: rtl;
+    unicode-bidi: bidi-override;
+  }
+
+  .star-rating input[type="radio"] {
+    display: none;
+  }
+
+  .star-rating label {
+    font-size: 1.5em;
+    color: gray;
+    cursor: pointer;
+    margin-left: 7px;
+    margin-top: -17px;
+  }
+
+  .star-rating input:checked ~ label {
+    color: gold;
+  }
+
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: gold;
+  }
+  .form-control{
+    margin-top: -9px;
+  }
+  .text-area{
+    background-color: transparent;
+    width: 100%;
+    color:white;
+    border: none;
+    border-bottom: 1px solid rgb(78, 76, 76);
+    outline: none;
+    margin-left: 7px;
+    padding-top: 2px;
+    padding-bottom: 1px;
+    line-height: 1.2;
+  }
+  /* .text-area::placeholder{
+    margin-bottom: -35px;
+  } */
+  .comment{
+    margin-top: 16px;
+    margin-left: 7px;
+  }
   </style>
 
 </head>
@@ -285,7 +340,7 @@
           <div id="movieBackdrop" class="modal-backdrop-image"></div>
           <div class="modal-header border-0">
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+          </div>
           <div class="modal-overlay-content text-white text-center text-md-start p-3">
             <h3 class="modal-title mb-2" id="movieTitle"></h3>
             <p class="mb-1">
@@ -302,27 +357,74 @@
   </div>
 
   <!-- Trailer Modal -->
-<div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark">
-      <div class="modal-header border-0">
-        <!-- <h5 class="modal-title text-white">Trailer</h5> -->
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body p-0">
-        <div class="ratio ratio-16x9">
-          <iframe id="trailerIframe" class="w-100" height="480" src="" frameborder="0" allowfullscreen></iframe>
+  <div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark">
+        <div class="modal-header border-0">
+          <!-- <h5 class="modal-title text-white">Trailer</h5> -->
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="ratio ratio-16x9">
+            <iframe id="trailerIframe" class="w-100" height="480" src="" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <form method="post" action="{% url 'submit_review' %}">
+              {% csrf_token %}
+              <input type="hidden" name="movie_id" id="modalMovieId">
+
+              <!-- Rating (1-5 stars) -->
+              <div class="d-flex justify-content-left my-2">
+                <div class="star-rating">
+                  {% for i in "12345" %}
+                  <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                  <label for="star{{ i }}">★</label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Comment -->
+              <textarea name="comment" class="text-area" placeholder="Add a comment..."></textarea>
+
+              <button type="submit" class="btn btn-outline-light comment">Post</button>
+            </form>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 
 
 
 
   {% endblock %}
+
+{% if messages %}
+<div id="popup-message" class="alert alert-success text-center"
+  style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: auto; padding: 10px 20px; border-radius: 5px; display: none;background-color: lightblue;color: black; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); ">
+  {% for message in messages %}
+  {{ message }}
+  {% endfor %}
+</div>
+
+<script>
+
+  window.onload = function () {
+    var messageElement = document.getElementById("popup-message");
+    if (messageElement) {
+      messageElement.style.display = "block";
+
+      setTimeout(function () {
+        messageElement.style.transition = "opacity 1s";
+        messageElement.style.opacity = "0";
+        setTimeout(function () {
+          messageElement.style.display = "none";
+        }, 1000);
+      }, 3000);
+    }
+  }
+</script>
+{% endif %}
+
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -349,6 +451,7 @@
       document.getElementById("movieYear").textContent = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
       document.getElementById("movieGenres").textContent = (movie.genres || []).join(", ") || "N/A";
       document.getElementById("movieOverview").textContent = movie.overview || "N/A";
+      document.getElementById("modalMovieId").value = movie.id; 
 
       const backdropUrl = "https://image.tmdb.org/t/p/w1280" + (movie.backdrop_path || movie.poster_path || "");
       document.getElementById("movieBackdrop").style.backgroundImage = `url('${backdropUrl}')`;
@@ -356,22 +459,23 @@
   </script>
   <script>
     document.querySelector('.trailer').addEventListener('click', function () {
-  if (currentTrailerKey) {
-    const embedUrl = `https://www.youtube.com/embed/${currentTrailerKey}`;
-    document.getElementById('trailerIframe').src = embedUrl;
-    const trailerModal = new bootstrap.Modal(document.getElementById('trailerModal'));
-    trailerModal.show();
-  } else {
-    alert('Trailer not available.');
-  }
-});
-</script>
-<script>
-  document.getElementById('trailerModal').addEventListener('hidden.bs.modal', function () {
-  document.getElementById('trailerIframe').src = '';
-});
+      if (currentTrailerKey) {
+        const embedUrl = `https://www.youtube.com/embed/${currentTrailerKey}`;
+        document.getElementById('trailerIframe').src = embedUrl;
+        const trailerModal = new bootstrap.Modal(document.getElementById('trailerModal'));
+        trailerModal.show();
+      } else {
+        alert('Trailer not available.');
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('trailerModal').addEventListener('hidden.bs.modal', function () {
+      document.getElementById('trailerIframe').src = '';
+    });
 
-</script>
+  </script>
 
 </body>
+
 </html>

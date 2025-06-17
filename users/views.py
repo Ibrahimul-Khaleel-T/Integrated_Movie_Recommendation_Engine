@@ -13,92 +13,6 @@ def index(request):
     return render(request,'index_page.html')
 
 
-def fetch_top_rated_movies(language_code):
-    url = f"https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&with_original_language={language_code}&sort_by=popularity.desc&page=1"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        return response.json().get('results', [])
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to fetch movies for {language_code}: {e}")
-        return []  
-
-
-def get_movie_credits(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={API_KEY}"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        credits = response.json()
-        director = next((member['name'] for member in credits['crew'] if member['job'] == 'Director'), 'N/A')
-        return director
-    except:
-        return 'N/A'
-    
-
-def fetch_genres():
-    url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={API_KEY}&language=en-US"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        genres = response.json().get('genres', [])
-        return {genre['id']: genre['name'] for genre in genres}
-    except:
-        return {}
-
-
-
-
-def user_home_page(request):
-    languages = ['en', 'hi', 'ml', 'ta', 'te', 'kn', 'ja', 'es']
-    seen_titles = set()
-    unique_movies = []
-
-    genre_map = fetch_genres()
-
-    for lang_code in languages:
-        movies = fetch_top_rated_movies(lang_code)
-        for movie in movies:
-            if movie['title'] not in seen_titles:
-                seen_titles.add(movie['title'])
-                movie['director'] = get_movie_credits(movie['id'])
-                movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
-                movie['trailer_key'] = get_movie_trailer_key(movie['id'])
-                movie['json'] = json.dumps({**movie,"director": movie['director'],"genres": movie['genres'],"trailer_key": movie['trailer_key'], })
-
-                unique_movies.append(movie)
-
-    return render(request, 'user_home_page.html', {'movies': unique_movies})
-
-
-def get_movie_trailer_key(movie_id):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={API_KEY}"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        videos = response.json().get('results', [])
-
-        # Prioritize YouTube trailer
-        for video in videos:
-            if video['type'] == 'Trailer' and video['site'] == 'YouTube':
-                return video['key']
-        
-        # If no "Trailer", try a "Teaser" from YouTube
-        for video in videos:
-            if video['type'] == 'Teaser' and video['site'] == 'YouTube':
-                return video['key']
-
-        # Try first YouTube video as fallback
-        for video in videos:
-            if video['site'] == 'YouTube':
-                return video['key']
-
-        return None
-    except Exception as e:
-        print(f"Error fetching trailer for {movie_id}: {e}")
-        return None
-
-
 
 def dp(request):
     user = request.user
@@ -109,7 +23,7 @@ def dp(request):
         elif not user.dp:
             user.dp = 'default_images/default_dp2.jpeg'
         user.save()
-        return redirect(user_home_page)
+        return redirect('user_home_page')
     return render(request,'dp.html',{'user':user})
 
 
@@ -140,7 +54,7 @@ def signin(request):
         user=authenticate(username=username,password=password)
         if user is not None:
             login(request,user)
-            return redirect(user_home_page)
+            return redirect('user_home_page')
         else:
             messages.error(request,"Invalid Username or Password, Try again!")
             return render(request,'signin_page.html')
@@ -231,9 +145,9 @@ def user_profile(request):
         data=request.user
         return render(request,'user_profile.html',{'data':data})
     except UserInfo.DoesNotExist:
-        return redirect(user_home_page)
+        return redirect('user_home_page')
     except:
-        return redirect(user_home_page)
+        return redirect('user_home_page')
     
 
 def edit_user_profile(request):

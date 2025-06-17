@@ -16,23 +16,25 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from users import views
+from users import views as users_view
 from django.conf import settings
 from django.conf.urls.static import static
+from movies import views as movies_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.index,name='index'),
-    path('signin',views.signin,name='signin'),
-    path('signup',views.signup,name='signup'),
-    path('reset_password',views.password_reset_request,name='reset_password'),
-    path('verify_otp',views.verify_otp,name='verify_otp'),
-    path('set_new_password',views.set_new_password,name='set_new_password'),
-    path('dp',views.dp,name='dp'),
-    path('user_home_page',views.user_home_page,name='user_home_page'),
-    path('user_profile',views.user_profile,name='user_profile'),
-    path('signout',views.signout,name='signout'),
-    path('edit_user_profile',views.edit_user_profile,name='edit_user_profile'),
+    path('',users_view.index,name='index'),
+    path('signin',users_view.signin,name='signin'),
+    path('signup',users_view.signup,name='signup'),
+    path('reset_password',users_view.password_reset_request,name='reset_password'),
+    path('verify_otp',users_view.verify_otp,name='verify_otp'),
+    path('set_new_password',users_view.set_new_password,name='set_new_password'),
+    path('dp',users_view.dp,name='dp'),
+    path('user_home_page',movies_view.user_home_page,name='user_home_page'),
+    path('user_profile',users_view.user_profile,name='user_profile'),
+    path('signout',users_view.signout,name='signout'),
+    path('edit_user_profile',users_view.edit_user_profile,name='edit_user_profile'),
+    path('submit_review',movies_view.submit_review,name='submit_review'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
