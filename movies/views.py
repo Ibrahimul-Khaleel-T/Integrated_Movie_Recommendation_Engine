@@ -314,5 +314,28 @@ def submit_review(request):
         Review.objects.create(user=request.user,movie_id=movie_id,rating=rating,comment=comment)
         messages.success(request, f"Your review for '{movieTitle}' was submitted.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
+    
 
+@login_required
+def movie_rating_list(request):
+    user = request.user
+    reviews = Review.objects.filter(user=user)
 
+    rated_movies = []
+    for review in reviews:
+        try:
+            tmdb_url = f"https://api.themoviedb.org/3/movie/{review.movie_id}?api_key={API_KEY}&language=en-US"
+            response = requests.get(tmdb_url, timeout=5) 
+            response.raise_for_status()  
+            movie_data = response.json()
+            director = get_movie_credits(review.movie_id)
+
+            rated_movies.append({
+                "movie": {"id": review.movie_id,"title": movie_data.get("title"),"poster_path": movie_data.get("poster_path"),"director": director,"year":movie_data.get("release_date"),"overview": movie_data.get("overview"),},
+                "review": {"rating": review.rating,"comment": review.comment,"created_at": review.created_at,}})
+        except Exception as e:
+            print(f"Error fetching movie {review.movie_id}: {e}")
+            rated_movies.append({
+                "movie": {"id": review.movie_id,"title": "Movie not found","poster_path": None,"director": "Not found","year":"Not found","overview": "",},
+                "review": {"rating": review.rating,"comment": review.comment,"created_at": review.created_at,}})
+    return render(request, 'movie_rating_list.html', {'rated_movies': rated_movies})

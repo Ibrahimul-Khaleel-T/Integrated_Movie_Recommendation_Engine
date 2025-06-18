@@ -76,7 +76,7 @@ body {
 </style>
 </head>
 <body>
- <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+ <nav class="navbar navbar-expand-lg bg-dark navbar-dark sticky-top">
   <div class="container-fluid">
         <span class="title me-4"><strong>SceneIt</strong></span>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,14 +88,14 @@ body {
             <a class="nav-link" href="{% url 'user_home_page' %}">Home</a>
         </li>
         <li class="nav-item me-2">
+          <a class="nav-link" href="{% url 'movie_rating_list' %}">My ratings</a>
+        </li>       
+        <li class="nav-item me-2">
           <a class="nav-link" href="{% url 'user_profile' %}">Profile</a>
         </li>   
         <li class="nav-item me-2">
           <a class="nav-link" href="{% url 'edit_user_profile' %}">Edit profile</a>
         </li>           
-        <li class="nav-item me-2">
-          <a class="nav-link" href="">My ratings</a>
-        </li>       
       </ul>
       <a class="nav-link1" href="{% url 'signout' %}" role="button" aria-expanded="false">Signout</a>
     </div>

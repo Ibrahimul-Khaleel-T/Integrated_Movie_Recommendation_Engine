@@ -1,0 +1,57 @@
+{% extends 'user_profile.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+    .rating_heading{
+        color: white;
+        text-align: start;
+        margin-top: 11px;
+        margin-bottom: 11px;
+        margin-left: 120px;
+        font-size: 21px;
+        font-weight: bold;
+        font-family: sans-serif;
+    }
+    .card-body{
+        margin-left: -100px;
+    }
+    .card-title{
+        color: rgb(144, 139, 139);
+    }
+</style>
+
+<h5 class="rating_heading">Your Movie Ratings & Reviews</h5>
+<div class="container">
+  {% for item in rated_movies %}
+    <div class="card mb-1 bg-dark text-white">
+      <div class="row g-0">
+        <div class="col-md-3">
+          {% if item.movie.poster_path %}
+            <img src="https://image.tmdb.org/t/p/w200{{ item.movie.poster_path }}" class="img-fluid rounded-start" alt="{{ item.movie.title }}">
+          {% else %}
+            <p>No image available</p>
+          {% endif %}
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h4 class="card-title"><strong>{{ item.movie.title }}</strong></h4>
+            <p class="director"><strong>Director:</strong> {{ item.movie.director }}</p>
+            <p class="year"><strong>Release date:</strong>{{item.movie.year}}</p>
+            <p class="overview"><strong>Overview:</strong>{{item.movie.overview}}</p>
+            <p class="card-text"><strong>Rating:</strong> {{ item.review.rating }}/5</p>
+            {% if item.review.comment %}
+              <p class="card-text"><strong>Comment:</strong> {{ item.review.comment }}</p>
+            {% endif %}
+            <p class="card-text"><small class="text">Reviewed on {{ item.review.created_at|date:"F j, Y, g:i a" }}</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-white text-center">You haven't reviewed any movies yet.</p>
+  {% endfor %}
+</div>
+
+
+{% endblock %}
