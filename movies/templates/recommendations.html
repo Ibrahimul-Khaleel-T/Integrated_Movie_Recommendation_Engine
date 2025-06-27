@@ -1,0 +1,218 @@
+{% extends 'user_home_page.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+  .head{
+    color: white;
+    margin-top: 11px;
+    margin-bottom: 11px;
+    margin-left: 12px;
+    font-size: 21px;
+    font-weight: bold;
+    font-family: sans-serif;
+  }
+  .modal-backdrop-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.8);
+      /* darken */
+      z-index: 1;
+    }
+    .modal-overlay-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.6);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .modal-header {
+      position: relative;
+      z-index: 2;
+    }
+
+    .modal-body {
+      position: relative;
+      padding: 0;
+      height: 600px;
+      overflow: hidden;
+    }
+
+    .modal-content {
+      background-color: transparent;
+      border: 1.5px solid rgb(78, 76, 76);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .mb-1 {
+      margin-top: -15px;
+    }
+
+    .mb-0 {
+      margin-top: -3px;
+    }
+
+</style>
+
+<!-- <h2 class="head">Recommended For You</h2>
+<div class="row g-0">
+  {% for movie in recommended_movies %}
+    <div class="col-md-2">
+      <div class="card bg-dark text-white">
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
+         data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+         onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+      </div>
+    </div>
+  {% endfor %}
+</div> -->
+
+<h2 class="head">Collaborative Filtering Recommendations</h2>
+<div class="row g-0">
+  {% for movie in collaborative_movies %}
+    <div class="col-md-2">
+      <div class="card bg-dark text-white">
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
+         data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+         onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-white text-center">No collaborative recommendations found.</p>
+  {% endfor %}
+</div>
+
+<h2 class="head mt-4">Content-Based Recommendations</h2>
+<div class="row g-0">
+  {% for movie in content_movies %}
+    <div class="col-md-2">
+      <div class="card bg-dark text-white">
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
+         data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+         onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-white text-center">No content-based recommendations found.</p>
+  {% endfor %}
+</div>
+
+
+
+ <!-- Movie Detail Modal -->
+  <div class="modal fade" id="movieDetailModal" tabindex="-1" aria-labelledby="movieDetailModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content text-white">
+
+        <div class="modal-body">
+          <div id="movieBackdrop" class="modal-backdrop-image"></div>
+          <div class="modal-header border-0">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-overlay-content text-white text-center text-md-start p-3">
+            <h3 class="modal-title mb-2" id="movieTitle"></h3>
+            <p class="mb-1">
+              <span id="movieDirector">N/A</span>&emsp;
+              <span id="movieYear">N/A</span>&emsp;
+              <span id="movieGenres">N/A</span>
+            </p>
+            <p id="movieOverview" class="mb-0">N/A</p>
+            <button class="trailer">Watch Trailer ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+   <!-- Trailer Modal -->
+  <div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark">
+        <div class="modal-header border-0">
+          <!-- <h5 class="modal-title text-white">Trailer</h5> -->
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="ratio ratio-16x9">
+            <iframe id="trailerIframe" class="w-100" height="480" src="" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <form method="post" action="{% url 'submit_review' %}">
+              {% csrf_token %}
+              <input type="hidden" name="movie_id" id="modalMovieId">
+
+              <!-- Rating (1-5 stars) -->
+              <div class="d-flex justify-content-left my-2">
+                <div class="star-rating">
+                  {% for i in "54321" %}
+                  <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                  <label for="star{{ i }}">★</label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Comment -->
+              <textarea name="comment" class="text-area" placeholder="Add a comment..."></textarea>
+
+              <button type="submit" class="btn btn-outline-light comment">Post</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    let currentTrailerKey = null; // global variable
+
+    function showRecommendedMovieDetails(movieJson) {
+      const movie = JSON.parse(movieJson);
+      console.log("Parsed movie:", movie);
+      currentTrailerKey = movie.trailer_key || null;
+
+      document.getElementById("movieDirector").innerText = movie.director || "N/A";
+      document.getElementById("movieTitle").textContent = movie.title || "N/A";
+      document.getElementById("movieYear").textContent = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
+      document.getElementById("movieGenres").textContent = (movie.genres || []).join(", ") || "N/A";
+      document.getElementById("movieOverview").textContent = movie.overview || "N/A";
+      document.getElementById("modalMovieId").value = movie.id; 
+
+      const backdropUrl = "https://image.tmdb.org/t/p/w1280" + (movie.backdrop_path || movie.poster_path || "");
+      document.getElementById("movieBackdrop").style.backgroundImage = `url('${backdropUrl}')`;
+    }
+  </script>
+   <!-- <script>
+    document.querySelector('.trailer').addEventListener('click', function () {
+      if (currentTrailerKey) {
+        const embedUrl = `https://www.youtube.com/embed/${currentTrailerKey}`;
+        document.getElementById('trailerIframe').src = embedUrl;
+        const trailerModal = new bootstrap.Modal(document.getElementById('trailerModal'));
+        trailerModal.show();
+      } else {
+        alert('Trailer not available.');
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('trailerModal').addEventListener('hidden.bs.modal', function () {
+      document.getElementById('trailerIframe').src = '';
+    });
+
+  </script> -->
+
+
+
+
+{% endblock %}

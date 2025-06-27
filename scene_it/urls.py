@@ -36,6 +36,8 @@ urlpatterns = [
     path('edit_user_profile',users_view.edit_user_profile,name='edit_user_profile'),
     path('submit_review',movies_view.submit_review,name='submit_review'),
     path('movie_rating_list',movies_view.movie_rating_list,name='movie_rating_list'),
+    path('recommend', movies_view.combined_recommendations, name='combined_recommendations'),
+
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
