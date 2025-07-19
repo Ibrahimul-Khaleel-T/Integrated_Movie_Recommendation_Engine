@@ -6,7 +6,7 @@
   .head{
     color: white;
     margin-top: 11px;
-    margin-bottom: 11px;
+    margin-bottom: -15px;
     margin-left: 12px;
     font-size: 21px;
     font-weight: bold;
@@ -63,50 +63,147 @@
     .mb-0 {
       margin-top: -3px;
     }
+    .card:hover {
+      transform: scale(1.08);
+      transition: transform 0.3s ease;
+      z-index: 1;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      /* border: 1px solid rgb(190, 39, 39); */
+    }
+
+    .card-img-top:hover {
+      opacity: 0.85;
+      transition: opacity 0.3s ease;
+    }
+    .carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+    .scroll-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 3rem;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  margin-left: 12px;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.movie-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  background-color: #111;
+  border-radius: 9px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  width: 210px;
+  object-fit: fill;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+  z-index: 2;
+  /* box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); */
+}
+
+.movie-card img {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid #333;
+}
+.scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0,0,0,0.7);
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  z-index: 3;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.scroll-btn:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.scroll-btn.left {
+  left: 0;
+}
+
+.scroll-btn.right {
+  right: 0;
+}
 
 </style>
 
-<!-- <h2 class="head">Recommended For You</h2>
-<div class="row g-0">
-  {% for movie in recommended_movies %}
-    <div class="col-md-2">
-      <div class="card bg-dark text-white">
-        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
-         data-bs-toggle="modal" data-bs-target="#movieDetailModal"
-         onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+<h2 class="head mt-4">You May Also Enjoy...</h2>
+<div class="carousel-wrapper">
+  <button class="scroll-btn left" onclick="scrollCarousel(this, -1)">&#8249;</button>
+  <div class="scroll-container">
+    {% for movie in content_movies %}
+      <div class="movie-card">
+        <div class="card bg-dark text-white">
+          <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
+          data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+          onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+        </div>
       </div>
-    </div>
-  {% endfor %}
-</div> -->
-
-<h2 class="head">Collaborative Filtering Recommendations</h2>
-<div class="row g-0">
-  {% for movie in collaborative_movies %}
-    <div class="col-md-2">
-      <div class="card bg-dark text-white">
-        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
-         data-bs-toggle="modal" data-bs-target="#movieDetailModal"
-         onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
-      </div>
-    </div>
-  {% empty %}
-    <p class="text-white text-center">No collaborative recommendations found.</p>
-  {% endfor %}
+    {% empty %}
+      <p class="text-white text-center">No content-based recommendations found.</p>
+    {% endfor %}
+  </div>
+   <button class="scroll-btn right" onclick="scrollCarousel(this, 1)">&#8250;</button>
 </div>
 
-<h2 class="head mt-4">Content-Based Recommendations</h2>
-<div class="row g-0">
-  {% for movie in content_movies %}
-    <div class="col-md-2">
-      <div class="card bg-dark text-white">
+
+
+<h2 class="head">Familiar Faces, Fresh Stories</h2>
+<div class="carousel-wrapper">
+  <button class="scroll-btn left" onclick="scrollCarousel(this, -1)">&#8249;</button>
+  <div class="scroll-container">
+    {% for movie in person_based_movies %}
+      <div class="movie-card">
         <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
-         data-bs-toggle="modal" data-bs-target="#movieDetailModal"
-         onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+        data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+        onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
       </div>
-    </div>
-  {% empty %}
-    <p class="text-white text-center">No content-based recommendations found.</p>
-  {% endfor %}
+    {% empty %}
+      <p class="text-white text-center">No person_based_movies found.</p>
+    {% endfor %}
+  </div>
+  <button class="scroll-btn right" onclick="scrollCarousel(this, 1)">&#8250;</button>
+</div>
+
+
+<h2 class="head mt-4">Trending Now</h2>
+<div class="carousel-wrapper">
+  <button class="scroll-btn left" onclick="scrollCarousel(this, -1)">&#8249;</button>
+  <div class="scroll-container">
+    {% for movie in collaborative_movies %}
+      <div class="movie-card">
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
+        data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+        onclick="showRecommendedMovieDetails(`{{ movie.json|escapejs }}`)">
+      </div>
+    {% empty %}
+      <p class="text-white text-center">No collaborative recommendations found.</p>
+    {% endfor %}
+  </div>
+  <button class="scroll-btn right" onclick="scrollCarousel(this, 1)">&#8250;</button>
 </div>
 
 
@@ -192,7 +289,7 @@
       const backdropUrl = "https://image.tmdb.org/t/p/w1280" + (movie.backdrop_path || movie.poster_path || "");
       document.getElementById("movieBackdrop").style.backgroundImage = `url('${backdropUrl}')`;
     }
-  </script>
+</script>
    <!-- <script>
     document.querySelector('.trailer').addEventListener('click', function () {
       if (currentTrailerKey) {
@@ -211,6 +308,17 @@
     });
 
   </script> -->
+  <script>
+  function scrollCarousel(button, direction) {
+    const container = button.parentElement.querySelector('.scroll-container');
+    const scrollAmount = 300; // pixels
+    container.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth'
+    });
+  }
+</script>
+
 
 
 
