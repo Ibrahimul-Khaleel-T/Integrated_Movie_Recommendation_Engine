@@ -37,6 +37,8 @@ urlpatterns = [
     path('submit_review',movies_view.submit_review,name='submit_review'),
     path('movie_rating_list',movies_view.movie_rating_list,name='movie_rating_list'),
     path('recommend', movies_view.combined_recommendations, name='combined_recommendations'),
+    path('language/<str:lang_code>',movies_view.movies_by_language,name='movies_by_language'),
+    path('genre/<str:genre_name>',movies_view.movies_by_genre,name='movies_by_genre'),
 
 ]
 if settings.DEBUG:

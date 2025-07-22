@@ -59,9 +59,10 @@ def fetch_genres():
     except:
         return {}
     
+    
 
 def user_home_page(request):
-    languages = ['en', 'hi', 'ml', 'ta', 'te', 'kn', 'ja', 'es']
+    languages = ['en', 'hi', 'ml', 'ta', 'te', 'kn', 'es']
     seen_titles = set()
     unique_movies = []
 
@@ -543,4 +544,82 @@ def combined_recommendations(request):
         'content_movies': content_movies,
         'person_based_movies': cast_director_movies,
         'base_movie_id': movie_id,
+    })
+
+
+
+def fetch_movies_by_genre(genre_id,language_code):
+    url = f"https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&with_original_language={language_code}&with_genres={genre_id}&sort_by=popularity.desc&page=3"
+    try:
+        time.sleep(0.3)
+        response = session.get(url, timeout=5)
+        response.raise_for_status()
+        return response.json().get('results', [])
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch movies for genre {genre_id}: {e}")
+        return []
+
+
+#Movies by genre filtering
+def movies_by_genre(request, genre_name):
+    languages=['en', 'ml', 'ta', 'te', 'hi', 'ka', 'es']
+    genre_map = fetch_genres()
+    # Reverse genre map: {'Action': 28, ...}
+    reverse_genre_map = {v.lower(): k for k, v in genre_map.items()}
+    genre_id = reverse_genre_map.get(genre_name.lower())
+
+    if genre_id is None:
+        messages.error(request,'Genre not found.')
+        return render(request,'user_home_page.html')
+    unique_movies = []
+    seen_titles = set()
+
+    
+    for lang_code in languages:
+        movies = fetch_movies_by_genre(genre_id,lang_code)
+        
+        for movie in movies:
+            if movie['title'] not in seen_titles:
+                seen_titles.add(movie['title'])
+                movie['director'] = get_movie_credits(movie['id'])
+                movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
+                movie['trailer_key'] = get_movie_trailer_key(movie['id'])
+                movie['json'] = json.dumps({
+                    **movie,
+                    "director": movie['director'],
+                    "genres": movie['genres'],
+                    "trailer_key": movie['trailer_key'],
+                })
+                unique_movies.append(movie)
+
+    return render(request, 'user_home_page.html', {
+        'movies': unique_movies,
+        'active_genre': genre_name.title()
+    })
+
+
+#Filtering by language
+def movies_by_language(request, lang_code):
+    seen_titles = set()
+    unique_movies = []
+    genre_map = fetch_genres()
+    movies = fetch_top_rated_movies(lang_code)
+
+    for movie in movies:
+        if movie['title'] not in seen_titles:
+            seen_titles.add(movie['title'])
+            movie['director'] = get_movie_credits(movie['id'])
+            movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
+            movie['trailer_key'] = get_movie_trailer_key(movie['id'])
+            movie['json'] = json.dumps({
+                **movie,
+                "director": movie['director'],
+                "genres": movie['genres'],
+                "trailer_key": movie['trailer_key'],
+            })
+            unique_movies.append(movie)
+
+    return render(request, 'user_home_page.html', {
+        'movies': unique_movies,
+        'active_language': lang_code
     })

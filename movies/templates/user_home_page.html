@@ -241,31 +241,35 @@
               Category
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Action' %}active{% endif %}" href="{% url 'movies_by_genre' 'Action'%}">Action</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Comedy</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Comedy' %}active{% endif %}" href="{% url 'movies_by_genre' 'Comedy' %}">Comedy</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Horror</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Horror' %}active{% endif %}" href="{% url 'movies_by_genre' 'Horror' %}">Horror</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Romantic</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Romance'%}active{% endif %}" href="{% url 'movies_by_genre' 'Romance' %}">Romantic</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Thriller</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Thriller' %}active{% endif %}" href="{% url 'movies_by_genre' 'Thriller' %}">Thriller</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Children's film</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Family' %}active{% endif %}" href="{% url 'movies_by_genre' 'Family' %}">Family</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Adventure</a></li>
+              <li><a class="dropdown-item {% if active_genre == 'Adventure' %}active{% endif %}" href="{% url 'movies_by_genre' 'Adventure' %}">Adventure</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item {% if active_genre == 'Science Fiction' %}active{% endif %}" href="{% url 'movies_by_genre' 'Science Fiction'%}">Sci-Fi</a></li>
             </ul>
           </li>
           <li class="nav-item dropdown me-2">
@@ -273,35 +277,35 @@
               Language
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">English</a></li>
+              <li><a class="dropdown-item {% if active_language == 'en' %}active{% endif %}" href="{% url 'movies_by_language' 'en' %}">English</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Hindi</a></li>
+              <li><a class="dropdown-item {% if active_language == 'hi' %}active{% endif %}" href="{% url 'movies_by_language' 'hi' %}">Hindi</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Malayalam</a></li>
+              <li><a class="dropdown-item {% if active_language == 'ml' %}active{% endif %}" href="{% url 'movies_by_language' 'ml' %}">Malayalam</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Tamil</a></li>
+              <li><a class="dropdown-item {% if active_language == 'ta' %}active{% endif %}" href="{% url 'movies_by_language' 'ta' %}">Tamil</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Telungu</a></li>
+              <li><a class="dropdown-item {% if active_language == 'te' %}active{% endif %}" href="{% url 'movies_by_language' 'te' %}">Telungu</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Cannada</a></li>
+              <li><a class="dropdown-item {% if active_language == 'ka' %}active{% endif %}" href="{% url 'movies_by_language' 'ka' %}">Cannada</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Japan</a></li>
+              <li><a class="dropdown-item {% if active_language == 'ja'%}active{% endif %}" href="{% url 'movies_by_language' 'ja' %}">Japan</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Spanish</a></li>
+              <li><a class="dropdown-item {% if active_language == 'es'%}active{% endif %}" href="{% url 'movies_by_language' 'es' %}">Spanish</a></li>
             </ul>
           </li>
           <li class="nav-item me-2">
