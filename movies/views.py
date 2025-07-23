@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from django.core.paginator import Paginator
 API_KEY="830596140937bda925ac2c89f6deb604"
 
 session = requests.Session()
@@ -598,12 +599,57 @@ def movies_by_genre(request, genre_name):
     })
 
 
-#Filtering by language
+#Movies by language filtering
+# def movies_by_language(request, lang_code):
+#     seen_titles = set()
+#     unique_movies = []
+#     genre_map = fetch_genres()
+#     movies = fetch_top_rated_movies(lang_code)
+
+#     for movie in movies:
+#         if movie['title'] not in seen_titles:
+#             seen_titles.add(movie['title'])
+#             movie['director'] = get_movie_credits(movie['id'])
+#             movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
+#             movie['trailer_key'] = get_movie_trailer_key(movie['id'])
+#             movie['json'] = json.dumps({
+#                 **movie,
+#                 "director": movie['director'],
+#                 "genres": movie['genres'],
+#                 "trailer_key": movie['trailer_key'],
+#             })
+#             unique_movies.append(movie)
+
+#     return render(request, 'user_home_page.html', {
+#         'movies': unique_movies,
+#         'active_language': lang_code
+#     })
+
+
+def fetch_toop_rated_movies(language_code, page_number=1):
+    url = f"https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&with_original_language={language_code}&sort_by=popularity.desc&page={page_number}"
+    try:
+        time.sleep(0.3)
+        response = session.get(url, timeout=5)
+        response.raise_for_status()
+        return response.json().get('results', [])
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch movies for {language_code}: {e}")
+        return []
+
+
+
+
 def movies_by_language(request, lang_code):
     seen_titles = set()
     unique_movies = []
     genre_map = fetch_genres()
-    movies = fetch_top_rated_movies(lang_code)
+    
+    # Get current page from query param (default to 1)
+    page = int(request.GET.get('page', 1))
+
+    # Fetch movies from TMDB for the current page
+    movies = fetch_toop_rated_movies(lang_code, page_number=page)
 
     for movie in movies:
         if movie['title'] not in seen_titles:
@@ -619,7 +665,12 @@ def movies_by_language(request, lang_code):
             })
             unique_movies.append(movie)
 
+    # Manual pagination for API pagination (simulated)
+    paginator = Paginator(unique_movies, 18)  # You can adjust this, but it's only for frontend look
+    paginated_movies = paginator.get_page(1)  # Always show 1st page because API is already paged
+
     return render(request, 'user_home_page.html', {
-        'movies': unique_movies,
-        'active_language': lang_code
+        'movies': paginated_movies,
+        'active_language': lang_code,
+        'current_page': page,
     })

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load custom_filters %}
 <html lang="en">
 
 <head>
@@ -345,6 +346,37 @@
       {% endfor %}
     </div>
   </div>
+
+ {% if movies %}
+<div class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination pagination-sm">
+      {% if current_page > 1 %}
+        <li class="page-item">
+          <a class="page-link bg-danger text-light"
+             href="?page={{ current_page|add:"-1" }}">&laquo; Prev</a>
+        </li>
+      {% endif %}
+
+      {% for i in current_page|add:"-2"|default:1|until:current_page|add:"3" %}
+        {% if i > 0 %}
+        <li class="page-item {% if i == current_page %}active{% endif %}">
+          <a class="page-link bg-dark text-light border-secondary"
+             href="?page={{ i }}">{{ i }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+
+      <li class="page-item">
+        <a class="page-link bg-danger text-light"
+           href="?page={{ current_page|add:"1" }}">Next &raquo;</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+{% endif %}
+
+
 
   <!-- Movie Detail Modal -->
   <div class="modal fade" id="movieDetailModal" tabindex="-1" aria-labelledby="movieDetailModalLabel"
