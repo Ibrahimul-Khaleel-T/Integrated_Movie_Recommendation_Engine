@@ -1,0 +1,139 @@
+{% extends 'user_home_page.html' %}
+{% block content %}
+{% load static %}
+{% load custom_filters %}
+
+<div class="container-fluid mt-1 px-4">
+    <div class="row g-0">
+      {% for movie in movies %}
+      <div class="col-md-2">
+        <div class="card bg-dark text-white">
+          <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top" alt="{{ movie.title }}"
+            data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+            onclick="showMovieByLanguage(`{{ movie.json|escapejs }}`)">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+   {% if movies %}
+<div class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination pagination-sm">
+      {% if current_page > 1 %}
+        <li class="page-item">
+          <a class="page-link bg-danger text-light"
+             href="?page={{ current_page|add:"-1" }}">&laquo; Prev</a>
+        </li>
+      {% endif %}
+
+      {% for i in current_page|add:"-2"|default:1|until:current_page|add:"3" %}
+        {% if i > 0 %}
+        <li class="page-item {% if i == current_page %}active{% endif %}">
+          <a class="page-link bg-dark text-light border-secondary"
+             href="?page={{ i }}">{{ i }}</a>
+        </li>
+        {% endif %}
+      {% endfor %}
+
+      <li class="page-item">
+        <a class="page-link bg-danger text-light"
+           href="?page={{ current_page|add:"1" }}">Next &raquo;</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+{% endif %}
+
+
+<!-- Movie Detail Modal -->
+  <div class="modal fade" id="movieDetailModal" tabindex="-1" aria-labelledby="movieDetailModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content text-white">
+
+        <div class="modal-body">
+          <div id="movieBackdrop" class="modal-backdrop-image"></div>
+          <div class="modal-header border-0">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-overlay-content text-white text-center text-md-start p-3">
+            <h3 class="modal-title mb-2" id="movieTitle"></h3>
+            <p class="mb-1">
+              <span id="movieDirector">N/A</span>&emsp;
+              <span id="movieYear">N/A</span>&emsp;
+              <span id="movieGenres">N/A</span>
+            </p>
+            <p id="movieOverview" class="mb-0">N/A</p>
+            <button class="trailer">Watch Trailer ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trailer Modal -->
+  <div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark">
+        <div class="modal-header border-0">
+          <!-- <h5 class="modal-title text-white">Trailer</h5> -->
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="ratio ratio-16x9">
+            <iframe id="trailerIframe" class="w-100" height="480" src="" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <form method="post" action="{% url 'submit_review' %}">
+              {% csrf_token %}
+              <input type="hidden" name="movie_id" id="modalMovieId">
+
+              <!-- Rating (1-5 stars) -->
+              <div class="d-flex justify-content-left my-2">
+                <div class="star-rating">
+                  {% for i in "54321" %}
+                  <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                  <label for="star{{ i }}">★</label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Comment -->
+              <textarea name="comment" class="text-area" placeholder="Add a comment..."></textarea>
+
+              <button type="submit" class="btn btn-outline-light comment">Post</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script>
+    let currentTrailerKey = null; // global variable
+
+    function showMovieByLanguage(movieJson) {
+      const movie = JSON.parse(movieJson);
+      currentTrailerKey = movie.trailer_key || null;
+
+      document.getElementById("movieDirector").innerText = movie.director || "N/A";
+      document.getElementById("movieTitle").textContent = movie.title || "N/A";
+      document.getElementById("movieYear").textContent = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
+      document.getElementById("movieGenres").textContent = (movie.genres || []).join(", ") || "N/A";
+      document.getElementById("movieOverview").textContent = movie.overview || "N/A";
+      document.getElementById("modalMovieId").value = movie.id; 
+
+      const backdropUrl = "https://image.tmdb.org/t/p/w1280" + (movie.backdrop_path || movie.poster_path || "");
+      document.getElementById("movieBackdrop").style.backgroundImage = `url('${backdropUrl}')`;
+    }
+  </script>
+
+
+
+
+
+{% endblock %}

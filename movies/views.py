@@ -669,7 +669,7 @@ def movies_by_language(request, lang_code):
     paginator = Paginator(unique_movies, 18)  # You can adjust this, but it's only for frontend look
     paginated_movies = paginator.get_page(1)  # Always show 1st page because API is already paged
 
-    return render(request, 'user_home_page.html', {
+    return render(request, 'movies_by_language.html', {
         'movies': paginated_movies,
         'active_language': lang_code,
         'current_page': page,
