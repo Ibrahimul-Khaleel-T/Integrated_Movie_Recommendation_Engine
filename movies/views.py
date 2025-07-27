@@ -118,8 +118,20 @@ def get_movie_trailer_key(movie_id):
 def submit_review(request):
     if request.method == "POST":
         movie_id = request.POST.get("movie_id")
-        rating = int(request.POST.get("rating"))
+        rating_raw = request.POST.get("rating")
         comment = request.POST.get("comment")
+
+        # Check if rating is provided
+        if rating_raw is None or rating_raw.strip() == "":
+            messages.error(request, "Please provide a rating before submitting your review.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        try:
+            rating = int(rating_raw)
+        except ValueError:
+            messages.error(request, "Invalid rating value.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}"
         try:
             time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
@@ -130,9 +142,10 @@ def submit_review(request):
         except:
             movieTitle = 'Unknown'
 
-        Review.objects.create(user=request.user,movie_id=movie_id,rating=rating,comment=comment)
+        Review.objects.create(user=request.user, movie_id=movie_id, rating=rating, comment=comment)
         messages.success(request, f"Your review for '{movieTitle}' was submitted.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
     
 
 @login_required
@@ -571,7 +584,7 @@ def movies_by_genre(request, genre_name):
 
     if genre_id is None:
         messages.error(request,'Genre not found.')
-        return render(request,'user_home_page.html')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
     unique_movies = []
     seen_titles = set()
 
@@ -666,7 +679,7 @@ def movies_by_language(request, lang_code):
             unique_movies.append(movie)
 
     # Manual pagination for API pagination (simulated)
-    paginator = Paginator(unique_movies, 18)  # You can adjust this, but it's only for frontend look
+    paginator = Paginator(unique_movies, 24)  # You can adjust this, but it's only for frontend look
     paginated_movies = paginator.get_page(1)  # Always show 1st page because API is already paged
 
     return render(request, 'movies_by_language.html', {
@@ -674,3 +687,43 @@ def movies_by_language(request, lang_code):
         'active_language': lang_code,
         'current_page': page,
     })
+
+
+
+
+def search_movies(request):
+    query = request.GET.get('query', '')
+    movies = []
+    genre_map = fetch_genres()
+
+    if query:
+        url = f"https://api.themoviedb.org/3/search/movie?api_key={API_KEY}&query={query}"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            for movie in data.get('results', []):  
+                director= get_movie_credits(movie['id']),                                                                                                    
+                genres= [genre_map.get(gid, "unknown") for gid in movie.get('genre_ids', [])], 
+                trailer_key= get_movie_trailer_key(movie['id']), 
+                movie_data = {
+                    'id': movie['id'],
+                    'title': movie.get('title', 'N/A'),
+                    'overview': movie.get('overview', ''),
+                    'poster_path': movie.get('poster_path', ''),
+                    'backdrop_path': movie.get('backdrop_path', ''),
+                    'release_date': movie.get('release_date', ''),
+                    'director': director,
+                    'genres': genres,
+                    'trailer_key': trailer_key,
+                }
+
+                # Include a JSON representation for use in modal
+                movie_data['json'] = json.dumps(movie_data)
+
+                movies.append(movie_data)
+
+        except requests.RequestException as e:
+            print("TMDB search failed:", e)
+
+    return render(request, 'search_results.html', {'movies': movies, 'query': query})
