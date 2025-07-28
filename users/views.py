@@ -10,6 +10,7 @@ API_KEY="830596140937bda925ac2c89f6deb604"
 # Create your views here.
 
 def index(request):
+    
     return render(request,'index_page.html')
 
 
