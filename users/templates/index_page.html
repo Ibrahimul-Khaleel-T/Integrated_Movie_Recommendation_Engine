@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SceneIt</title>
   <link rel="icon" href="{% static 'images/SceneIt_logo3.png' %}">
-  <style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<style>
     body {
       margin: 0;
       padding: 0;
@@ -21,19 +23,22 @@
       z-index: 2;
     }
     .title {
-      color: rgb(190, 39, 39);
-      font-size: 30px;
+      color: rgb(190, 39, 39);      
+      margin-top: 10px;
+      margin-left: -88px;
+    }
+    .title h2{
+      font-size: 40px;
       font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-      margin-top: -27px;
     }
     .btns {
       display: flex;
-      gap: 9px;
+      gap: 100px;
     }
     .sign_in button,
     .sign_up button {
       width: 90px;
-      padding: 7px;
+      padding: 4px;
       border-radius: 3px;
       background-color: rgb(190, 39, 39);
       border: none;
@@ -41,6 +46,7 @@
       cursor: pointer;
       font-size: 14px;
       margin-top: 18px;
+      margin-right: -90px;
       overflow: hidden;
     }
     .sign_in button:hover,
@@ -79,35 +85,303 @@
     .label{
       position: relative;
       z-index: 2;
-      color: white;
-      font-size: 25px;
-      font-family:'Bebas Neue', sans-serif;
       text-align: center;
-      margin-top: 130px;
+      margin-top: 210px;
       overflow: hidden;
+      
+    }
+    .label h1{
+      color: white;
+      font-size: 50px;
+      font-weight: 800;
+      font-family:'Bebas Neue', sans-serif;
     }
     .start button{
       width: 170px;
-      padding: 10px;
+      padding: 6px;
       border-radius: 4px;
       background-color: rgb(190, 39, 39);
       border: none;
       color: white;
       cursor: pointer;
-      font-size: 25px;
-      margin-top: -40px;
+      font-size: 23px;
+      margin-top: 20px;
       overflow: hidden;
     }
     .start button:hover{
       background-color: rgb(165, 22, 22);
     }
-    .section_b h1{
-      z-index: 2;
-      color: white;
-      background-color: black;
-      margin-top: 370px;
+    .carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+    .scroll-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 3rem;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  margin-left: 12px;
+  scrollbar-width: none; /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.movie-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  background-color: #111;
+  border-radius: 9px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  width: 190px;
+  object-fit: fill;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+  z-index: 2;
+  /* box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); */
+}
+
+.movie-card img {
+  width: 100%;
+  height: auto;
+  /* border-bottom: 1px solid #333; */
+}
+.scroll-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0,0,0,0.7);
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  z-index: 3;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.scroll-btn:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.scroll-btn.left {
+  left: 0;
+  margin-left: -35px;
+}
+
+.scroll-btn.right {
+  right: 0;
+  margin-right: -45px;
+} 
+.section_b{
+  margin-top: 310px;
+  padding: 130px;
+}
+.head{
+    color: white;
+    margin-top: 11px;
+    margin-bottom: -15px;
+    margin-left: 12px;
+    font-size: 25px;
+    font-weight: bold;
+    font-family: sans-serif;
+  }
+  .modal-backdrop-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.8);
+      /* darken */
+      z-index: 1;
     }
-  </style>
+    .modal-overlay-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.6);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .modal-header {
+      position: relative;
+      z-index: 2;
+    }
+    .modal-body {
+      position: relative;
+      padding: 0;
+      height: 600px;
+      overflow: hidden;
+    }
+    .modal-content {
+      background-color: transparent;
+      border: 1.5px solid rgb(78, 76, 76);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .trailer {
+      width: 150px;
+      padding: 10px;
+      border-radius: 4px;
+      background-color: rgb(190, 39, 39);
+      border: none;
+      color: white;
+      font-size: 18px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+    #movieDirector {
+      background-color: rgba(204, 196, 196, 0.3);
+      padding: 6px;
+      border-radius: 3px;
+    }
+
+    #movieYear {
+      background-color: rgba(204, 196, 196, 0.3);
+      padding: 6px;
+      border-radius: 3px;
+    }
+
+    #movieGenres {
+      background-color: rgba(204, 196, 196, 0.3);
+      padding: 6px;
+      border-radius: 3px;
+    }
+
+    .modal-title {
+      margin-top: -6px;
+    }
+    .star-rating {
+    direction: rtl;
+    unicode-bidi: bidi-override;
+  }
+
+  .star-rating input[type="radio"] {
+    display: none;
+  }
+
+  .star-rating label {
+    font-size: 1.5em;
+    color: gray;
+    cursor: pointer;
+    margin-left: 7px;
+    margin-top: -17px;
+  }
+
+  .star-rating input:checked ~ label {
+    color: gold;
+  }
+
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: gold;
+  }
+  .form-control{
+    margin-top: -9px;
+  }
+  .text-area{
+    background-color: transparent;
+    width: 100%;
+    color:white;
+    border: none;
+    border-bottom: 1px solid rgb(78, 76, 76);
+    outline: none;
+    margin-left: 7px;
+    padding-top: 2px;
+    padding-bottom: 1px;
+    line-height: 1.2;
+  }
+  /* .text-area::placeholder{
+    margin-bottom: -35px;
+  } */
+  .comment{
+    margin-top: 16px;
+    margin-left: 7px;
+  }
+  .section_c{
+    margin-top: 40px;
+    border-top:1px solid rgb(78, 76, 76);
+    border-bottom:1px solid rgb(78, 76, 76);
+    padding: 18px;
+  }
+  .section_c h2{
+    color: rgb(190, 39, 39);
+    font-size: 30px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    text-align: center;
+  }
+  .section_d{
+    padding: 130px;
+    margin-top: 90px;
+  }
+  .section_d h5{
+    color: white;
+    margin-bottom: 25px;
+  }
+  .link_head{
+    display: flex;
+    gap: 179px;
+  }
+  .link_1{
+    margin-bottom: 25px;
+  }
+  .link_1 a,
+  .link_2 a,
+  .link_3 a{
+    color: white;
+    text-decoration: none;
+  }
+  .link_1 a:hover,
+  .link_2 a:hover,
+  .link_3 a:hover{
+    text-decoration: underline;
+  }
+  #about_link,
+  .sign_up_link,
+  .speed_test_link{
+    display: block;
+    margin-top: 10px;
+  }
+  .link_4{
+    display: block;
+    margin-left: 50px;
+  }
+  .link_4 p{
+    color: white;
+    font-size: 11px;
+  }
+  .quote_2{
+    display: block;
+    margin-top: -14px;
+  }
+  .about-modal-body{
+    padding: 70px;
+    font-size: 17px;
+  }
+  
+
+</style>
 </head>
 <body>
 
@@ -128,7 +402,7 @@
   <div class="label">
     <h1><strong>Stuck on what to watch?<br>We’ve got you.</strong></h1>
     <div class="start">
-      <a href="{% url 'signup' %}"><button type="submit"><strong>Let's Start</strong></button></a>
+      <a href="{% url 'signup' %}"><button type="submit"><strong>Let's start ></strong></button></a>
     </div>
   </div>
 
@@ -137,9 +411,141 @@
   <div class="poster-grid" id="poster-grid"></div>
   <div class="overlay"></div>
 
- <div class="section_b">
-    <h1>heloo</h1>
- </div>
+
+
+<div class="section_b">
+  <h2 class="head mt-4">Trending Now</h2>
+<div class="carousel-wrapper">
+  <button class="scroll-btn left" onclick="scrollCarousel(this, -1)">&#8249;</button>
+  <div class="scroll-container">
+    {% for movie in collaborative_movies %}
+      <div class="movie-card">
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" class="card-img-top"
+        data-bs-toggle="modal" data-bs-target="#movieDetailModal"
+        onclick="showTopMovieDetails(`{{ movie.json|escapejs }}`)">
+      </div>
+    {% empty %}
+      <p class="text-white text-center">No Top Movies found.</p>
+    {% endfor %}
+  </div>
+  <button class="scroll-btn right" onclick="scrollCarousel(this, 1)">&#8250;</button>
+</div>
+
+<!-- Movie Detail Modal -->
+  <div class="modal fade" id="movieDetailModal" tabindex="-1" aria-labelledby="movieDetailModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content text-white">
+
+        <div class="modal-body">
+          <div id="movieBackdrop" class="modal-backdrop-image"></div>
+          <div class="modal-header border-0">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-overlay-content text-white text-center text-md-start p-3">
+            <h3 class="modal-title mb-2" id="movieTitle"></h3>
+            <p class="mb-1">
+              <span id="movieDirector">N/A</span>&emsp;
+              <span id="movieYear">N/A</span>&emsp;
+              <span id="movieGenres">N/A</span>
+            </p>
+            <p id="movieOverview" class="mb-0">N/A</p>
+            <a href="{% url 'signin' %}"><button class="trailer">Get started ></button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+ <!-- Trailer Modal -->
+  <div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark">
+        <div class="modal-header border-0">
+          <!-- <h5 class="modal-title text-white">Trailer</h5> -->
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="ratio ratio-16x9">
+            <iframe id="trailerIframe" class="w-100" height="480" src="" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <form method="post" action="{% url 'submit_review' %}">
+              {% csrf_token %}
+              <input type="hidden" name="movie_id" id="modalMovieId">
+
+              <!-- Rating (1-5 stars) -->
+              <div class="d-flex justify-content-left my-2">
+                <div class="star-rating">
+                  {% for i in "54321" %}
+                  <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}">
+                  <label for="star{{ i }}">★</label>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Comment -->
+              <textarea name="comment" class="text-area" placeholder="Add a comment..."></textarea>
+
+              <button type="submit" class="btn btn-outline-light comment">Post</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="section_c">
+  <h2><strong>SceneIt</strong></h2>
+</div>
+
+<div class="section_d">
+  <h5><strong>Quick links</strong></h5>
+  <div class="link_head">
+    <div class="link_1">
+      <a href="{% url 'index' %}">Home</a><br>
+      <a id="about_link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+    </div>
+    <div class="link_2">
+      <a href="{% url 'signin' %}">Sign in</a><br>
+      <a class="sign_up_link" href="{% url 'signup' %}">Sign up</a>
+    </div>
+    <div class="link_3">
+      <a href="">Contact</a><br>
+      <a class="Speed_test_link" href="">Speed test</a>
+    </div>
+    <div class="link_4">
+      <p>Every movie is a window to another world. Let SceneIt be your guide.</p>
+      <p class="quote_2">One click. Endless stories.</p>
+    </div>
+  </div>  
+</div>
+
+
+
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title" id="aboutModalLabel">About SceneIt</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="about-modal-body text-start">
+        <p><strong>SceneIt</strong> is an intelligent movie recommendation platform designed to help you discover movies you'll love - fast and effortlessly. Whether you're into thrillers, romantic dramas, regional gems, or global blockbusters, SceneIt uses smart algorithms to match you with the perfect film.</p>
+        <p><strong>Key Features:</strong></p>
+        <ul>
+          <li>Discover Popular & Top-Rated Movies</li>
+          <li>Personalized Recommendations</li>
+          <li>Genre & Language Filtering</li>
+          <li>Watch Trailers Instantly</li>
+          <li>User Reviews & Ratings</li>
+        </ul>
+        <p><strong>Our Mission:</strong> To simplify your movie night — no endless scrolling, just great recommendations.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <!-- <script>
     const API_KEY = '830596140937bda925ac2c89f6deb604';  
@@ -163,7 +569,7 @@
   </script> -->
 
 
-  <div id="poster-grid"></div>
+  
 
 <script>
   const API_KEY = '830596140937bda925ac2c89f6deb604';  
@@ -191,6 +597,49 @@
       })
       .catch(error => console.error(`Error fetching for ${language}:`, error));
   });
+</script>
+
+<script>
+    let currentTrailerKey = null; // global variable
+
+    function showTopMovieDetails(movieJson) {
+      const movie = JSON.parse(movieJson);
+      console.log("Parsed movie:", movie);
+      currentTrailerKey = movie.trailer_key || null;
+
+      document.getElementById("movieDirector").innerText = movie.director || "N/A";
+      document.getElementById("movieTitle").textContent = movie.title || "N/A";
+      document.getElementById("movieYear").textContent = movie.release_date ? movie.release_date.split("-")[0] : "N/A";
+      document.getElementById("movieGenres").textContent = (movie.genres || []).join(", ") || "N/A";
+      document.getElementById("movieOverview").textContent = movie.overview || "N/A";
+      document.getElementById("modalMovieId").value = movie.id; 
+
+      const backdropUrl = "https://image.tmdb.org/t/p/w1280" + (movie.backdrop_path || movie.poster_path || "");
+      document.getElementById("movieBackdrop").style.backgroundImage = `url('${backdropUrl}')`;
+    }
+</script>
+
+ <script>
+  function scrollCarousel(button, direction) {
+    const container = button.parentElement.querySelector('.scroll-container');
+    const scrollAmount = 300; // pixels
+    container.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth'
+    });
+  }
+</script>
+<script>
+    document.querySelector('.trailer').addEventListener('click', function () {
+      if (currentTrailerKey) {
+        const embedUrl = `https://www.youtube.com/embed/${currentTrailerKey}`;
+        document.getElementById('trailerIframe').src = embedUrl;
+        const trailerModal = new bootstrap.Modal(document.getElementById('trailerModal'));
+        trailerModal.show();
+      } else {
+        alert('Trailer not available.');
+      }
+    });
 </script>
 
 </body>

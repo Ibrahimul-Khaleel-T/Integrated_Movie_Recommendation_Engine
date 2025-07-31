@@ -5,13 +5,75 @@ from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.core.mail import send_mail
 import random,requests,json
+from movies.views import train_svd_model,get_recommendations_for_user,fetch_movie_details,fetch_genres,get_movie_credits,get_movie_trailer_key
 API_KEY="830596140937bda925ac2c89f6deb604"
 
 # Create your views here.
 
+# def index(request):
+#     user_id = request.user.id
+#     print("user id=",user_id)
+
+#     # ✅ 1. Collaborative Filtering (SVD)
+#     model = train_svd_model()
+#     collaborative_ids = get_recommendations_for_user(user_id, model)
+#     collaborative_movies = [fetch_movie_details(mid) for mid in collaborative_ids]
+#     collaborative_movies = [movie for movie in collaborative_movies if movie]
+
+#     for movie in collaborative_movies:
+#         genre_map = fetch_genres()
+#         movie_data = {
+#             "id": movie.get('id'),
+#             "title": movie.get('title'),
+#             "overview": movie.get('overview', ''),
+#             "release_date": movie.get('release_date', ''),
+#             "poster_path": movie.get('poster_path', ''),
+#             "backdrop_path": movie.get('backdrop_path', ''),
+#             "director": get_movie_credits(movie['id']),
+#             "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
+#             "trailer_key": get_movie_trailer_key(movie['id']),
+#         }
+#         movie['json'] = json.dumps(movie_data)
+
+#     return render(request,'index_page.html',{'collaborative_movies':collaborative_movies})
+
 def index(request):
-    
-    return render(request,'index_page.html')
+    user_id = request.user.id
+    print("user id =", user_id)
+
+    # 1. Collaborative Filtering (SVD)
+    model = train_svd_model()
+    recommended_ids = get_recommendations_for_user(user_id, model)
+
+    # Fetch genre map once
+    genre_map = fetch_genres()
+
+    # Prepare movie list
+    collaborative_movies = []
+    for mid in recommended_ids:
+        movie = fetch_movie_details(mid)
+        if not movie:
+            continue
+
+        movie_data = {
+            "id": movie.get('id'),
+            "title": movie.get('title'),
+            "overview": movie.get('overview', ''),
+            "release_date": movie.get('release_date', ''),
+            "poster_path": movie.get('poster_path', ''),
+            "backdrop_path": movie.get('backdrop_path', ''),
+            "director": get_movie_credits(movie['id']),
+            "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
+            "trailer_key": get_movie_trailer_key(movie['id']),
+        }
+
+        # Add to list with json payload
+        movie["json"] = json.dumps(movie_data)
+        collaborative_movies.append(movie)
+
+    return render(request, 'index_page.html', {
+        'collaborative_movies': collaborative_movies
+    })
 
 
 
