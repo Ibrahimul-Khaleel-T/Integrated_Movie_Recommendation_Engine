@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.core.mail import send_mail
 import random,requests,json
+from django.core.mail import EmailMessage
 from movies.views import train_svd_model,get_recommendations_for_user,fetch_movie_details,fetch_genres,get_movie_credits,get_movie_trailer_key
 API_KEY="830596140937bda925ac2c89f6deb604"
 
@@ -230,4 +231,44 @@ def edit_user_profile(request):
 
 
 
+# def submit_contact(request):
+#     if request.method == 'POST':
+#         name = request.POST['name']
+#         email = request.POST['email']
+#         message = request.POST['message']
+
+#         full_message = f"Message from {name} :\n\n{message}"
+#         send_mail(
+#             subject='SceneIt Contact Form',
+#             message=full_message,
+#             from_email='khaleelashraf.cr7@gmail.com',
+#             recipient_list=['kha7ee7@gmail.com'],
+#         )
+#         messages.success(request, 'Thanks for reaching out! We’ll get back to you soon.')
+#         return redirect(request.META.get('HTTP_REFERER', '/'))  
+#     return render(request,'contact.html')
+
+
+
+def submit_contact(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        email = request.POST['email']
+        message = request.POST['message']
+
+        subject = f'SceneIt contact'
+        full_message = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
+
+        email_msg = EmailMessage(
+            subject=subject,
+            body=full_message,
+            from_email='your@email.com',  # must match your Gmail SMTP
+            to=['kha7ee7@gmail.com'],
+            reply_to=[email],  # so you can reply directly to user
+        )
+        email_msg.send()
+
+        messages.success(request, 'Message sent successfully!')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    return render(request,'contact.html')
 

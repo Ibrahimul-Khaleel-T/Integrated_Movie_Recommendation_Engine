@@ -40,6 +40,7 @@ urlpatterns = [
     path('language/<str:lang_code>',movies_view.movies_by_language,name='movies_by_language'),
     path('genre/<str:genre_name>',movies_view.movies_by_genre,name='movies_by_genre'),
     path('search/',movies_view.search_movies,name='search_movies'),
+    path('submit_contact',users_view.submit_contact,name='submit_contact'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
