@@ -135,10 +135,11 @@
     .google_btn button{
       width: 285px;
       margin-left: 3px;
-      margin-top: -1px;
+      margin-top:85px;
       padding: 7px;
       border-radius: 3px;
-      background-color: rgba(204, 196, 196, 0.3);
+      /* background-color: rgba(204, 196, 196, 0.3); */
+      background-color:  rgb(190, 39, 39);
       border: none;
       cursor: pointer;
       color: white;
@@ -148,6 +149,12 @@
       align-items: center;
       justify-content: center;
       gap: 4px; 
+    }
+    .google_btn button:hover{
+      background-color: rgb(165, 22, 22);
+    }
+    .forgot{
+      margin-top: 15px;
     }
     .forgot a{
       color: white;
@@ -206,20 +213,21 @@
     <span class="error" id="username_error"></span>
     <input type="password" placeholder="Password" name="password" id="password"><br>
     <span class="error" id="password_error"></span>
-    <div class="sign_in">
-      <button type="submit">Sign in</button>
+    <!-- <div class="sign_in">
+      
     </div>
     <div class="or">
       <p>OR</p>
-    </div>
+    </div> -->
       <div class="google_btn">
-        <button>
+        <!-- <button>
           <img src="{% static 'images/Google_Icon.webp' %}" width="30px" height="30px" alt="Google icon">
           Sign in with Google
-        </button><br>
+        </button><br> -->
+        <button type="submit">Sign in</button>
       </div>
     <div class="forgot">
-      <a href="{% url 'reset_password' %}">Forgot password?</a><br>
+      <a href="{% url 'reset_password' %}">Forgot password?</a>
     </div>
     <div class="new">
       New to SceneIt?
