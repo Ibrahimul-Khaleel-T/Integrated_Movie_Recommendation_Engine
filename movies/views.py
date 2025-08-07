@@ -36,10 +36,11 @@ def fetch_top_rated_movies(language_code):
         return [] 
 
 
+
 def get_movie_credits(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={API_KEY}"
     try:
-        time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
+        time.sleep(0.3)  
         response = session.get(url, timeout=5)
         response.raise_for_status()
         credits = response.json()
@@ -49,10 +50,11 @@ def get_movie_credits(movie_id):
         return 'N/A'
 
 
+
 def fetch_genres():
     url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={API_KEY}&language=en-US"
     try:
-        time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
+        time.sleep(0.3)  
         response = session.get(url, timeout=5)
         response.raise_for_status()
         genres = response.json().get('genres', [])
@@ -60,7 +62,7 @@ def fetch_genres():
     except:
         return {}
     
-    
+
 
 def user_home_page(request):
     languages = ['en', 'hi', 'ml', 'ta', 'te', 'kn', 'es']
@@ -84,26 +86,24 @@ def user_home_page(request):
     return render(request, 'user_home_page.html', {'movies': unique_movies})
 
 
+
 def get_movie_trailer_key(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key={API_KEY}"
     try:
-        time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
+        time.sleep(0.3)  
         response = session.get(url, timeout=5)
         response.raise_for_status()
         videos = response.json().get('results', [])
         
 
-        # Prioritize YouTube trailer
         for video in videos:
             if video['type'] == 'Trailer' and video['site'] == 'YouTube':
                 return video['key']
         
-        # If no "Trailer", try a "Teaser" from YouTube
         for video in videos:
             if video['type'] == 'Teaser' and video['site'] == 'YouTube':
                 return video['key']
 
-        # Try first YouTube video as fallback
         for video in videos:
             if video['site'] == 'YouTube':
                 return video['key']
@@ -114,6 +114,7 @@ def get_movie_trailer_key(movie_id):
         return None
     
 
+
 @login_required
 def submit_review(request):
     if request.method == "POST":
@@ -121,7 +122,6 @@ def submit_review(request):
         rating_raw = request.POST.get("rating")
         comment = request.POST.get("comment")
 
-        # Check if rating is provided
         if rating_raw is None or rating_raw.strip() == "":
             messages.error(request, "Please provide a rating before submitting your review.")
             return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -134,7 +134,7 @@ def submit_review(request):
 
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}"
         try:
-            time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
+            time.sleep(0.3)  
             response = session.get(movie_url, timeout=5)
             response.raise_for_status()
             movie_data = response.json()
@@ -157,7 +157,7 @@ def movie_rating_list(request):
     for review in reviews:
         try:
             tmdb_url = f"https://api.themoviedb.org/3/movie/{review.movie_id}?api_key={API_KEY}&language=en-US"
-            time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
+            time.sleep(0.3) 
             response = session.get(tmdb_url, timeout=5) 
             response.raise_for_status()  
             movie_data = response.json()
@@ -173,11 +173,13 @@ def movie_rating_list(request):
                 "review": {"rating": review.rating,"comment": review.comment,"created_at": review.created_at,}})
     return render(request, 'movie_rating_list.html', {'rated_movies': rated_movies})
 
-#Collaborative Filtering
 
+
+#Collaborative Filtering
 def get_ratings_df():
     reviews = Review.objects.all().values('user_id', 'movie_id', 'rating')
     return pd.DataFrame(reviews)
+
 
 
 def train_svd_model():
@@ -192,8 +194,8 @@ def train_svd_model():
     return model
 
 
+
 def get_recommendations_for_user(user_id, model, top_n=20):
-    # Get all movie_ids the user hasn't rated yet
     df = get_ratings_df()
     rated_movies = df[df['user_id'] == user_id]['movie_id'].tolist()
     all_movies = df['movie_id'].unique()
@@ -210,11 +212,12 @@ def get_recommendations_for_user(user_id, model, top_n=20):
     return top_movie_ids
 
 
+
 def fetch_movie_details(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
 
     try:
-        time.sleep(0.3)  # ⏳ delay to avoid TMDB blocking
+        time.sleep(0.3)
         response = session.get(url, timeout=5)
         response.raise_for_status()
         return response.json()
@@ -224,9 +227,7 @@ def fetch_movie_details(movie_id):
 
 
 
-
 #content filtering
-
 def get_popular_movie_ids_from_tmdb(languages=['en', 'hi', 'ml'], limit_per_lang=30):
     all_movie_ids = set()
 
@@ -239,46 +240,9 @@ def get_popular_movie_ids_from_tmdb(languages=['en', 'hi', 'ml'], limit_per_lang
 
 
 
-# def fetch_movie_text(movie_id):
-#     base_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
-#     try:
-#         # 1. Fetch main movie data
-#         url = f"{base_url}?api_key={API_KEY}&language=en-US"
-#         time.sleep(0.3)
-#         response = session.get(url, timeout=5)
-#         response.raise_for_status()
-#         data = response.json()
-        
-#         overview = data.get('overview', '')
-#         tagline = data.get('tagline', '')*20
-#         genres = ' '.join([genre['name'] for genre in data.get('genres', [])])*20  # weight genres
-
-#         # 2. Fetch keywords
-#         keywords_url = f"{base_url}/keywords?api_key={API_KEY}"
-#         kw_resp = session.get(keywords_url, timeout=5)
-#         kw_resp.raise_for_status()
-#         keywords = [kw['name'] for kw in kw_resp.json().get('keywords', [])]
-#         keywords_str = ' '.join(keywords) * 20  # weight keywords
-
-#         # 3. Combine
-#         full_text = ' '.join([
-#             overview,
-#             tagline*10,
-#             genres*10,
-#             keywords_str
-#         ])
-
-#         return full_text.strip()
-    
-#     except requests.RequestException as e:
-#         print(f"[ERROR] fetch_movie_text failed for movie_id={movie_id}: {e}")
-#         return ''
-
-
 def fetch_movie_text(movie_id):
     base_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
     try:
-        # 1. Fetch main movie data
         url = f"{base_url}?api_key={API_KEY}&language=en-US"
         time.sleep(0.3)
         response = session.get(url, timeout=5)
@@ -289,13 +253,11 @@ def fetch_movie_text(movie_id):
         tagline = data.get('tagline', '')
         genres = [genre['name'] for genre in data.get('genres', [])]
 
-        # 2. Fetch keywords
         keywords_url = f"{base_url}/keywords?api_key={API_KEY}"
         kw_resp = session.get(keywords_url, timeout=5)
         kw_resp.raise_for_status()
         keywords = [kw['name'] for kw in kw_resp.json().get('keywords', [])]
 
-        # 3. Combine with controlled weights
         weighted_text = ' '.join([
             overview,
             (tagline + ' ') * 3,
@@ -307,7 +269,6 @@ def fetch_movie_text(movie_id):
     except requests.RequestException as e:
         print(f"[ERROR] fetch_movie_text failed for movie_id={movie_id}: {e}")
         return ''
-
 
 
 
@@ -347,6 +308,7 @@ def recommend_similar_movies(movie_id, movie_id_list, cosine_sim ,top_n=10):
     return recommend_ids
 
 
+
 def get_top_cast_and_director(movie_id):
     try:
         url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={API_KEY}"
@@ -365,9 +327,9 @@ def get_top_cast_and_director(movie_id):
         return [], []
 
 
+
 def get_movies_by_person(person_name):
     try:
-        # Step 1: Search person by name
         search_url = f"https://api.themoviedb.org/3/search/person?api_key={API_KEY}&query={person_name}"
         time.sleep(0.3)
         search_resp = session.get(search_url, timeout=5)
@@ -378,12 +340,11 @@ def get_movies_by_person(person_name):
 
         person_id = results[0]['id']
 
-        # Step 2: Get their movie credits
         credits_url = f"https://api.themoviedb.org/3/person/{person_id}/movie_credits?api_key={API_KEY}"
         time.sleep(0.3)
         credits_resp = session.get(credits_url, timeout=5)
         credits_resp.raise_for_status()
-        movies = credits_resp.json().get('cast', [])  # or 'crew' for directors
+        movies = credits_resp.json().get('cast', [])  
 
         return [m['id'] for m in movies if 'id' in m]
 
@@ -391,6 +352,7 @@ def get_movies_by_person(person_name):
         print(f"[ERROR] Failed to get movies for {person_name}: {e}")
         return []
     
+
 
 def fetch_movies_by_genres(genre_ids, language='en', pages=2):
     genre_param = ','.join(map(str, genre_ids))
@@ -409,12 +371,10 @@ def fetch_movies_by_genres(genre_ids, language='en', pages=2):
 
 
 
-
 @login_required
 def combined_recommendations(request):
     user_id = request.user.id
 
-    # ✅ 1. Collaborative Filtering (SVD)
     model = train_svd_model()
     collaborative_ids = get_recommendations_for_user(user_id, model)
     collaborative_movies = [fetch_movie_details(mid) for mid in collaborative_ids]
@@ -435,11 +395,10 @@ def combined_recommendations(request):
         }
         movie['json'] = json.dumps(movie_data)
 
-    # ✅ 2. Content-Based Filtering (TF-IDF)
-    content_movies = []
-    movie_id = None  # Define early so it's available in the template
 
-    # Get base movie ID from user's last review
+    content_movies = []
+    movie_id = None 
+
     last_review = Review.objects.filter(user_id=user_id).order_by('-id').first()
     cast_list = []
     director_list = []
@@ -459,15 +418,12 @@ def combined_recommendations(request):
         for person in cast_list + director_list:
             person_movie_ids.update(get_movies_by_person(person))
 
-        # Remove base movie itself
         person_movie_ids.discard(movie_id)
 
-        # Fetch movie details
         cast_director_movies = [fetch_movie_details(mid) for mid in person_movie_ids]
         cast_director_movies = [movie for movie in cast_director_movies if movie and movie.get('popularity')]
         # ✅ Sort by popularity (or use vote_average or vote_count if preferred)
         cast_director_movies = sorted(cast_director_movies, key=lambda m: m.get('popularity', 0), reverse=True)
-        # ✅ Limit to top 20
         cast_director_movies = cast_director_movies[:10]
         print(f"[DEBUG] Top cast: {cast_list}")
         print(f"[DEBUG] Directors: {director_list}")
@@ -492,15 +448,15 @@ def combined_recommendations(request):
 
 
 
-        # ✅ Fetch base movie genres
+       
         base_movie_data = fetch_movie_details(movie_id)
         base_genres = base_movie_data.get('genres', [])
         genre_ids = [g['id'] for g in base_genres]
 
-        # ✅ Get movies by genre
+        
         genre_based_ids = fetch_movies_by_genres(genre_ids, language='en', pages=2)
 
-        # ✅ Combine person-based + genre-based movies
+       
         all_ids = list(set(genre_based_ids + list(person_movie_ids)))
         if movie_id not in all_ids:
             all_ids.append(movie_id)
@@ -552,7 +508,7 @@ def combined_recommendations(request):
             'message': 'You need to rate at least one movie for content-based recommendations.'
         })
 
-    # ✅ Render both results to the same template
+    
     return render(request, 'recommendations.html', {
         'collaborative_movies': collaborative_movies,
         'content_movies': content_movies,
@@ -572,6 +528,7 @@ def fetch_movies_by_genre(genre_id,language_code):
     except requests.exceptions.RequestException as e:
         print(f"Failed to fetch movies for genre {genre_id}: {e}")
         return []
+
 
 
 #Movies by genre filtering
@@ -612,32 +569,6 @@ def movies_by_genre(request, genre_name):
     })
 
 
-#Movies by language filtering
-# def movies_by_language(request, lang_code):
-#     seen_titles = set()
-#     unique_movies = []
-#     genre_map = fetch_genres()
-#     movies = fetch_top_rated_movies(lang_code)
-
-#     for movie in movies:
-#         if movie['title'] not in seen_titles:
-#             seen_titles.add(movie['title'])
-#             movie['director'] = get_movie_credits(movie['id'])
-#             movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])]
-#             movie['trailer_key'] = get_movie_trailer_key(movie['id'])
-#             movie['json'] = json.dumps({
-#                 **movie,
-#                 "director": movie['director'],
-#                 "genres": movie['genres'],
-#                 "trailer_key": movie['trailer_key'],
-#             })
-#             unique_movies.append(movie)
-
-#     return render(request, 'user_home_page.html', {
-#         'movies': unique_movies,
-#         'active_language': lang_code
-#     })
-
 
 def fetch_toop_rated_movies(language_code, page_number=1):
     url = f"https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&with_original_language={language_code}&sort_by=popularity.desc&page={page_number}"
@@ -652,16 +583,13 @@ def fetch_toop_rated_movies(language_code, page_number=1):
 
 
 
-
 def movies_by_language(request, lang_code):
     seen_titles = set()
     unique_movies = []
     genre_map = fetch_genres()
     
-    # Get current page from query param (default to 1)
     page = int(request.GET.get('page', 1))
 
-    # Fetch movies from TMDB for the current page
     movies = fetch_toop_rated_movies(lang_code, page_number=page)
 
     for movie in movies:
@@ -679,15 +607,14 @@ def movies_by_language(request, lang_code):
             unique_movies.append(movie)
 
     # Manual pagination for API pagination (simulated)
-    paginator = Paginator(unique_movies, 24)  # You can adjust this, but it's only for frontend look
-    paginated_movies = paginator.get_page(1)  # Always show 1st page because API is already paged
+    paginator = Paginator(unique_movies, 24)  
+    paginated_movies = paginator.get_page(1)  
 
     return render(request, 'movies_by_language.html', {
         'movies': paginated_movies,
         'active_language': lang_code,
         'current_page': page,
     })
-
 
 
 
@@ -718,7 +645,7 @@ def search_movies(request):
                     'trailer_key': trailer_key,
                 }
 
-                # Include a JSON representation for use in modal
+                
                 movie_data['json'] = json.dumps(movie_data)
 
                 movies.append(movie_data)

@@ -11,45 +11,15 @@ API_KEY="830596140937bda925ac2c89f6deb604"
 
 # Create your views here.
 
-# def index(request):
-#     user_id = request.user.id
-#     print("user id=",user_id)
-
-#     # ✅ 1. Collaborative Filtering (SVD)
-#     model = train_svd_model()
-#     collaborative_ids = get_recommendations_for_user(user_id, model)
-#     collaborative_movies = [fetch_movie_details(mid) for mid in collaborative_ids]
-#     collaborative_movies = [movie for movie in collaborative_movies if movie]
-
-#     for movie in collaborative_movies:
-#         genre_map = fetch_genres()
-#         movie_data = {
-#             "id": movie.get('id'),
-#             "title": movie.get('title'),
-#             "overview": movie.get('overview', ''),
-#             "release_date": movie.get('release_date', ''),
-#             "poster_path": movie.get('poster_path', ''),
-#             "backdrop_path": movie.get('backdrop_path', ''),
-#             "director": get_movie_credits(movie['id']),
-#             "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
-#             "trailer_key": get_movie_trailer_key(movie['id']),
-#         }
-#         movie['json'] = json.dumps(movie_data)
-
-#     return render(request,'index_page.html',{'collaborative_movies':collaborative_movies})
 
 def index(request):
-    user_id = request.user.id
-    print("user id =", user_id)
-
-    # 1. Collaborative Filtering (SVD)
+    user_id = 13
+    
     model = train_svd_model()
     recommended_ids = get_recommendations_for_user(user_id, model)
 
-    # Fetch genre map once
     genre_map = fetch_genres()
 
-    # Prepare movie list
     collaborative_movies = []
     for mid in recommended_ids:
         movie = fetch_movie_details(mid)
@@ -68,7 +38,6 @@ def index(request):
             "trailer_key": get_movie_trailer_key(movie['id']),
         }
 
-        # Add to list with json payload
         movie["json"] = json.dumps(movie_data)
         collaborative_movies.append(movie)
 
@@ -91,6 +60,7 @@ def dp(request):
     return render(request,'dp.html',{'user':user})
 
 
+
 def signup(request):
     if request.method=='POST':
         fullname=request.POST['fullname']
@@ -111,6 +81,7 @@ def signup(request):
         return render(request,'signup_page.html')
 
 
+
 def signin(request):
     if request.method=='POST':
         username=request.POST['username']
@@ -125,7 +96,8 @@ def signin(request):
     else:
         return render(request,'signin_page.html')
  
-    
+
+
 def send_otp(email):
     otp = random.randint(100000,999999)
     send_mail(
@@ -136,6 +108,7 @@ def send_otp(email):
         fail_silently=False,
     )
     return otp
+
 
 
 def password_reset_request(request):
@@ -160,6 +133,7 @@ def password_reset_request(request):
     return render(request,'reset_password.html') 
 
 
+
 def verify_otp(request):
     if request.method == 'POST':
         email =request.POST.get('email')
@@ -176,6 +150,7 @@ def verify_otp(request):
             messages.error(request,"Invalid OTP")
         return render(request,'verify_otp.html',{'email':email})
     return render(request,'verify_otp.html') 
+
 
 
 def set_new_password(request):
@@ -199,9 +174,11 @@ def set_new_password(request):
     return render(request,'set_new_password.html',{'email':email})
 
 
+
 def signout(request):
     logout(request)
     return redirect(signin)
+
 
 
 def user_profile(request):
@@ -212,7 +189,8 @@ def user_profile(request):
         return redirect('user_home_page')
     except:
         return redirect('user_home_page')
-    
+
+
 
 def edit_user_profile(request):
     data=request.user
@@ -231,25 +209,6 @@ def edit_user_profile(request):
 
 
 
-# def submit_contact(request):
-#     if request.method == 'POST':
-#         name = request.POST['name']
-#         email = request.POST['email']
-#         message = request.POST['message']
-
-#         full_message = f"Message from {name} :\n\n{message}"
-#         send_mail(
-#             subject='SceneIt Contact Form',
-#             message=full_message,
-#             from_email='khaleelashraf.cr7@gmail.com',
-#             recipient_list=['kha7ee7@gmail.com'],
-#         )
-#         messages.success(request, 'Thanks for reaching out! We’ll get back to you soon.')
-#         return redirect(request.META.get('HTTP_REFERER', '/'))  
-#     return render(request,'contact.html')
-
-
-
 def submit_contact(request):
     if request.method == 'POST':
         name = request.POST['name']
@@ -262,9 +221,9 @@ def submit_contact(request):
         email_msg = EmailMessage(
             subject=subject,
             body=full_message,
-            from_email='your@email.com',  # must match your Gmail SMTP
+            from_email='your@email.com',  
             to=['kha7ee7@gmail.com'],
-            reply_to=[email],  # so you can reply directly to user
+            reply_to=[email],  
         )
         email_msg.send()
 
