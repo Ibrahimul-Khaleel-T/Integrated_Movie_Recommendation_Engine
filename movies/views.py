@@ -390,7 +390,7 @@ def combined_recommendations(request):
             "poster_path": movie.get('poster_path', ''),
             "backdrop_path": movie.get('backdrop_path', ''),
             "director": get_movie_credits(movie['id']),
-            "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
+            "genres" : [genre['name'] for genre in movie['genres']],
             "trailer_key": get_movie_trailer_key(movie['id']),
         }
         movie['json'] = json.dumps(movie_data)
@@ -440,7 +440,7 @@ def combined_recommendations(request):
                 "poster_path": movie.get('poster_path', ''),
                 "backdrop_path": movie.get('backdrop_path', ''),
                 "director": get_movie_credits(movie['id']),
-                "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
+                "genres" : [genre['name'] for genre in movie['genres']],
                 "trailer_key": get_movie_trailer_key(movie['id']),
                 }
             movie['json'] = json.dumps(movie_data)
@@ -488,7 +488,7 @@ def combined_recommendations(request):
                     "poster_path": movie.get('poster_path', ''),
                     "backdrop_path": movie.get('backdrop_path', ''),
                     "director": get_movie_credits(movie['id']),
-                    "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
+                    "genres" : [genre['name'] for genre in movie['genres']],
                     "trailer_key": get_movie_trailer_key(movie['id']),
                 }
                 movie['json'] = json.dumps(movie_data)

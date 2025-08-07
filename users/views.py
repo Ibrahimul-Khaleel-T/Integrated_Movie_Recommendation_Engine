@@ -26,20 +26,27 @@ def index(request):
         if not movie:
             continue
 
-        movie_data = {
-            "id": movie.get('id'),
-            "title": movie.get('title'),
-            "overview": movie.get('overview', ''),
-            "release_date": movie.get('release_date', ''),
-            "poster_path": movie.get('poster_path', ''),
-            "backdrop_path": movie.get('backdrop_path', ''),
-            "director": get_movie_credits(movie['id']),
-            "genres": [genre_map.get(gid, "Unknown") for gid in movie.get('genre_ids', [])],
-            "trailer_key": get_movie_trailer_key(movie['id']),
-        }
+        movie['director'] = get_movie_credits(movie['id'])
+    
+        # genre fallback
+        if movie.get('genres'):
+            movie['genres'] = [genre['name'] for genre in movie['genres']]
+        elif movie.get('genre_ids'):
+            movie['genres'] = [genre_map.get(gid, "Unknown") for gid in movie['genre_ids']]
+        else:
+            movie['genres'] = ["Unknown"]
 
-        movie["json"] = json.dumps(movie_data)
+        movie['trailer_key'] = get_movie_trailer_key(movie['id'])
+        movie['json'] = json.dumps({
+            **movie,
+            'director': movie['director'],
+            'genres': movie['genres'],
+            'trailer_key': movie['trailer_key'],
+        })
+
         collaborative_movies.append(movie)
+
+
 
     return render(request, 'index_page.html', {
         'collaborative_movies': collaborative_movies
