@@ -279,6 +279,11 @@ const API_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&
             document.getElementById("mobile_number_error").innerText="Mobile Number is required";
             isvalid=false;
         }
+        let mobilePattern = /^[0-9]{10}$/;
+          if (!mobilePattern.test(mobile_number)) {
+              document.getElementById("mobile_number_error").innerText = "Enter a valid 10-digit mobile number";
+              isvalid = false;
+        }
         if(username===""){
             document.getElementById("username_error").innerText="Username is required";
             isvalid=false;

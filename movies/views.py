@@ -177,21 +177,29 @@ def movie_rating_list(request):
 
 #Collaborative Filtering
 def get_ratings_df():
-    reviews = Review.objects.all().values('user_id', 'movie_id', 'rating')
-    return pd.DataFrame(reviews)
+    reviews = Review.objects.values_list('user_id', 'movie_id', 'rating')
+    df = pd.DataFrame(reviews, columns=['user_id', 'movie_id', 'rating'])
+    return df
 
 
 
 def train_svd_model():
-    df=get_ratings_df()
-    reader=Reader(rating_scale=(1,5))
-    data=Dataset.load_from_df(df[['user_id','movie_id','rating']],reader)
+    df = get_ratings_df()
 
-    trainset=data.build_full_trainset()
-    model=SVD()
-    model.fit(trainset)
+    if df.empty:
+        print("[ERROR] Review DataFrame is empty.")
+        return None
 
-    return model
+    try:
+        reader = Reader(rating_scale=(1, 5))
+        data = Dataset.load_from_df(df[['user_id', 'movie_id', 'rating']], reader)
+        trainset = data.build_full_trainset()
+        model = SVD()
+        model.fit(trainset)
+        return model
+    except KeyError as e:
+        print(f"[ERROR] Missing columns: {e}")
+        return None
 
 
 
